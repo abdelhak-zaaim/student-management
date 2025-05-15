@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity StudentGroup.
+    -->
+    <changeSet id="20250515195044-2" author="zaaims">
+
+        <addForeignKeyConstraint baseColumnNames="student_group_id"
+                                 baseTableName="rel_student_group__subjects"
+                                 constraintName="fk_rel_student_group__subjects__student_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="student_group"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="subjects_id"
+                                 baseTableName="rel_student_group__subjects"
+                                 constraintName="fk_rel_student_group__subjects__subjects_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"
+                                 />
+    </changeSet>
+</databaseChangeLog>
