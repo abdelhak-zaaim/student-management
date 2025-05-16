@@ -147,12 +147,15 @@ public class StudentResource {
         @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
     ) {
         LOG.debug("REST request to get a page of Students");
+
         Page<Student> page;
+
         if (eagerload) {
             page = studentService.findAllWithEagerRelationships(pageable);
         } else {
             page = studentService.findAll(pageable);
         }
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
