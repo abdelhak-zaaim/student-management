@@ -14,6 +14,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import tech.jhipster.config.JHipsterProperties;
 
+import java.util.List;
+
 /**
  * Configuration of web application with Servlet 3.0 APIs.
  */
@@ -43,14 +45,17 @@ public class WebConfigurer implements ServletContextInitializer {
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = jHipsterProperties.getCors();
-        if (!CollectionUtils.isEmpty(config.getAllowedOrigins()) || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {
-            LOG.debug("Registering CORS filter");
-            source.registerCorsConfiguration("/api/**", config);
-            source.registerCorsConfiguration("/management/**", config);
-            source.registerCorsConfiguration("/v3/api-docs", config);
-            source.registerCorsConfiguration("/swagger-ui/**", config);
-        }
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));   // any origin
+        config.setAllowedMethods(List.of("*"));          // any HTTP method
+        config.setAllowedHeaders(List.of("*"));          // any request header
+        config.setExposedHeaders(List.of("*"));          // expose everything back
+        config.setAllowCredentials(true);                // include cookies / auth headers if needed
+
+        /* apply to every path */
+        source.registerCorsConfiguration("/**", config);
+
         return new CorsFilter(source);
     }
 }
