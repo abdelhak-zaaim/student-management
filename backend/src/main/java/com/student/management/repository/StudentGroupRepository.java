@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the StudentGroup entity.
  *
  * When extending this class, extend StudentGroupRepositoryWithBagRelationships too.
- * For more information refer to https://github.com/jhipster/generator-jhipster/issues/17990.
  */
 @Repository
 public interface StudentGroupRepository extends StudentGroupRepositoryWithBagRelationships, JpaRepository<StudentGroup, Long> {

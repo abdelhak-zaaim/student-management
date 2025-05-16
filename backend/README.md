@@ -29,12 +29,6 @@ To package your application as a war in order to deploy it to an application ser
 ./mvnw -Pprod,war clean verify
 ```
 
-### Docker build
-
-```
-docker compose -f src/main/docker/jhipster-control-center.yml up
-```
-
 ## Testing
 
 ### Spring Boot tests
@@ -82,7 +76,7 @@ For more information, refer to the [Code quality page][].
 
 ### Using Docker to simplify development (optional)
 
-You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
+You can use Docker to improve your development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
 
 For example, to start a mysql database in a docker container, run:
 

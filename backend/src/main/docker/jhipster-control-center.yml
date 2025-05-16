@@ -1,5 +1,4 @@
 ## How to use JHCC docker compose
-# To allow JHCC to reach JHipster application from a docker container note that we set the host as host.docker.internal
 # To reach the application from a browser, you need to add '127.0.0.1 host.docker.internal' to your hosts file.
 ### Discovery mode
 # JHCC support 3 kinds of discovery mode: Consul, Eureka and static
@@ -26,11 +25,10 @@
 # Do not forget to remove the prefix "127.0.0.1" in front of their port in order to expose them.
 # This is required because JHCC need to communicate with Consul or Eureka.
 # - In Consul mode, the ports are in the consul.yml file.
-# - In Eureka mode, the ports are in the jhipster-registry.yml file.
 
 name: studentmanagementbackend
 services:
-  jhipster-control-center:
+ control-center:
     image: 'jhipster/jhipster-control-center:v0.5.0'
     command:
       - /bin/sh
@@ -41,7 +39,6 @@ services:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs,static
       - SPRING_SECURITY_USER_PASSWORD=admin
-      # The token should have the same value than the one declared in you Spring configuration under the jhipster.security.authentication.jwt.base64-secret configuration's entry
       - JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=ZWUxY2U5MWVkZjk0ODRiNjlhMGU0MzZhYzFhYTJjZjc2ZTQyOTk5NDk4OWY3Mjc4OTBjYzk2YmU5ODhjOGI3ZjhjZDQ3N2Q5MmE2NTRlZTQyOTBkYWIwYmJlYWQwZDljZjYwNDZkOTlhZjJmODU3ODkxODZkMGQ2YjMyMjdlNDU=
       - SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_STUDENTMANAGEMENTBACKEND_0_URI=http://host.docker.internal:8080
       - LOGGING_FILE_NAME=/tmp/jhipster-control-center.log

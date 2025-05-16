@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the Subject entity.
  *
  * When extending this class, extend SubjectRepositoryWithBagRelationships too.
- * For more information refer to https://github.com/jhipster/generator-jhipster/issues/17990.
  */
 @Repository
 public interface SubjectRepository extends SubjectRepositoryWithBagRelationships, JpaRepository<Subject, Long> {

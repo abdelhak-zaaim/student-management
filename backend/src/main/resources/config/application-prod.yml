@@ -3,8 +3,6 @@
 #
 # This configuration overrides the application.yml file.
 #
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 # ===================================================================
@@ -82,12 +80,6 @@ server:
     mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json,image/svg+xml
     min-response-size: 1024
 
-# ===================================================================
-# JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
-
 student-management:
   http:
     cache: # Used by the CachingHttpHeadersFilter
@@ -99,12 +91,11 @@ student-management:
         # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely:
         # - In the Consul configserver
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
-        # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
         base64-secret: ZWUxY2U5MWVkZjk0ODRiNjlhMGU0MzZhYzFhYTJjZjc2ZTQyOTk5NDk4OWY3Mjc4OTBjYzk2YmU5ODhjOGI3ZjhjZDQ3N2Q5MmE2NTRlZTQyOTBkYWIwYmJlYWQwZDljZjYwNDZkOTlhZjJmODU3ODkxODZkMGQ2YjMyMjdlNDU=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
-  mail: # specific JHipster mail property, for standard properties see MailProperties
+  mail:
     base-url: http://my-server-url-to-change # Modify according to your server's URL
   logging:
     use-json-format: false # By default, logs are not in Json format
@@ -116,10 +107,8 @@ student-management:
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
 #
 # More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 # application:
