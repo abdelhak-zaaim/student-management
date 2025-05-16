@@ -40,7 +40,7 @@
         <jib-maven-plugin.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.image>
         <jib-maven-plugin.version>3.4.3</jib-maven-plugin.version>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-       <liquibase-plugin.password>halim1993</liquibase-plugin.password>
+       <liquibase-plugin.password>abdelhak</liquibase-plugin.password>
         <liquibase-plugin.url>jdbc:mysql://localhost:3306/studentManagementBackend</liquibase-plugin.url>
         <liquibase-plugin.username>root</liquibase-plugin.username>
         <mapstruct.version>1.6.2</mapstruct.version>

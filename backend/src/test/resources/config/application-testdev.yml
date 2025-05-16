@@ -13,7 +13,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://localhost:3306/studentManagementBackend_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
     username: root
-    password: halim1993
+    password: abdelhak
     hikari:
       auto-commit: false
       poolName: Hikari
