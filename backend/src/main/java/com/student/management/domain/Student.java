@@ -2,6 +2,9 @@ package com.student.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +28,10 @@ public class Student implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
+    @Size(max = 10, min = 10)
+    @Column(name = "phone", length = 10)
+    private String phone;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
     @JsonIgnoreProperties(value = { "student" }, allowSetters = true)
     private Set<Payment> payments = new HashSet<>();
@@ -32,6 +39,8 @@ public class Student implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "students", "subjects" }, allowSetters = true)
     private StudentGroup studentGroup;
+
+
 
     
 
@@ -42,6 +51,14 @@ public class Student implements Serializable {
     public Student id(Long id) {
         this.setId(id);
         return this;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public void setId(Long id) {
