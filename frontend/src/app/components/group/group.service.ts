@@ -31,6 +31,11 @@ export class GroupService {
         return this.http.get<Group[]>(this.resourceUrl, { observe: 'response' });
     }
 
+    /** GET /groups/{id}/students - returns all students in a specific group */
+    findStudentsByGroupId(id: number): Observable<HttpResponse<any[]>> {
+        return this.http.get<any[]>(`${this.resourceUrl}/${id}/students`, { observe: 'response' });
+    }
+
     /**
      * GET /groups?page={page}&size={size}&sort={sort}
      * Example: findAllPaginated(1, 10, 'name,asc')

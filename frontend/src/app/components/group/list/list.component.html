@@ -87,6 +87,10 @@
                         </td>
                         <td>
                             <div class="flex">
+                                <button pButton pRipple icon="pi pi-users"
+                                        class="p-button-rounded p-button-info mr-2"
+                                        (click)="viewStudents(group)"
+                                        pTooltip="View Students"></button>
                                 <button pButton pRipple icon="pi pi-pencil"
                                         class="p-button-rounded p-button-success mr-2"
                                         (click)="editGroup(group)"></button>
@@ -145,6 +149,55 @@
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteGroupsDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
             </ng-template>
+                    </p-dialog>
+
+                    <!-- Students Dialog -->
+                    <p-dialog [(visible)]="studentsDialog"
+                              [header]="selectedGroupForStudents ? 'Students in ' + selectedGroupForStudents.name : 'Group Students'"
+                              [modal]="true"
+                              [style]="{width:'800px', maxWidth: '90vw'}"
+                              [maximizable]="true">
+                        <ng-template pTemplate="content">
+                            <p-progressBar *ngIf="loadingStudents" mode="indeterminate" [style]="{'height': '6px'}"></p-progressBar>
+
+                            <div *ngIf="!loadingStudents && selectedGroupStudents.length === 0"
+                                 class="flex justify-content-center align-items-center p-5">
+                                <div class="text-center">
+                                    <i class="pi pi-users text-5xl text-muted mb-3"></i>
+                                    <p>No students enrolled in this group</p>
+                                </div>
+                            </div>
+
+                            <p-table [value]="selectedGroupStudents"
+                                     [columns]="studentCols"
+                                     [responsive]="true"
+                                     [rows]="10"
+                                     [paginator]="true"
+                                     [rowsPerPageOptions]="[5,10,25]"
+                                     *ngIf="!loadingStudents && selectedGroupStudents.length > 0">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                                        <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
+                                        <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+                                        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                                        <th pSortableColumn="phone">Phone <p-sortIcon field="phone"></p-sortIcon></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-student>
+                                    <tr>
+                                        <td>{{student.id}}</td>
+                                        <td>{{student.firstName}}</td>
+                                        <td>{{student.lastName}}</td>
+                                        <td>{{student.email}}</td>
+                                        <td>{{student.phone}}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="hideStudentsDialog()"></button>
+                        </ng-template>
                     </p-dialog>
     </div>
 </div>

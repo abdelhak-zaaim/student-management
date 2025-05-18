@@ -16,8 +16,8 @@ import {ToolbarModule} from "primeng/toolbar";
 import {GroupRoutingModule} from "./group-routing.module";
 import {DialogModule} from "primeng/dialog";
 import {DropdownModule} from "primeng/dropdown";
-
-
+import {ProgressBarModule} from "primeng/progressbar";
+import {TooltipModule} from "primeng/tooltip";
 
 @NgModule({
   declarations: [ListComponent, UpdateComponent, GroupComponent],
@@ -35,6 +35,8 @@ import {DropdownModule} from "primeng/dropdown";
         ToolbarModule,
         DialogModule, // Added for p-dialog
         DropdownModule, // Added for potential dropdown requirements
+        ProgressBarModule, // Added for loading indicator
+        TooltipModule, // Added for button tooltips
         GroupRoutingModule
     ],
     providers: [MessageService]

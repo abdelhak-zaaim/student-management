@@ -19,10 +19,15 @@ export class ListComponent implements OnInit {
     statuses: any[] = [];
 
     groupDialog: boolean = false;
-
     deleteGroupDialog: boolean = false;
-
     deleteGroupsDialog: boolean = false;
+
+    // New properties for students dialog
+    studentsDialog: boolean = false;
+    selectedGroupStudents: any[] = [];
+    selectedGroupForStudents: Group | null = null;
+    loadingStudents: boolean = false;
+    studentCols: any[] = [];
 
     rowsPerPageOptions = [5, 10, 20];
 
@@ -35,10 +40,74 @@ export class ListComponent implements OnInit {
         });
 
         this.cols = [
-            {field: 'user', header: 'User'},
-            {field: 'groupGroup', header: 'groupGroup'},
+            {field: 'name', header: 'Name'},
+            {field: 'description', header: 'Description'},
         ];
 
+        this.studentCols = [
+            {field: 'id', header: 'ID'},
+            {field: 'firstName', header: 'First Name'},
+            {field: 'lastName', header: 'Last Name'},
+            {field: 'email', header: 'Email'},
+            {field: 'phone', header: 'Phone'}
+        ];
+    }
+
+    /**
+     * View students in a group
+     */
+    viewStudents(group: Group) {
+        if (!group.id) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Cannot view students for this group',
+                life: 3000
+            });
+            return;
+        }
+
+        this.selectedGroupForStudents = group;
+        this.loadingStudents = true;
+        this.selectedGroupStudents = [];
+        this.studentsDialog = true;
+
+        // Fetch students for this group
+        this.groupService.findStudentsByGroupId(group.id).subscribe(
+            response => {
+                this.loadingStudents = false;
+                if (response.body) {
+                    // Transform the data to match the table structure
+                    this.selectedGroupStudents = response.body.map(student => {
+                        return {
+                            id: student.id,
+                            firstName: student.user?.firstName,
+                            lastName: student.user?.lastName,
+                            email: student.user?.email,
+                            phone: student.phone
+                        };
+                    });
+                }
+            },
+            error => {
+                this.loadingStudents = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load students for this group',
+                    life: 3000
+                });
+            }
+        );
+    }
+
+    /**
+     * Close the students dialog
+     */
+    hideStudentsDialog() {
+        this.studentsDialog = false;
+        this.selectedGroupForStudents = null;
+        this.selectedGroupStudents = [];
     }
 
 
