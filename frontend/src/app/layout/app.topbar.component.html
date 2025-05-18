@@ -1,0 +1,40 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="" style="display: flex;
+    align-items: center;
+">
+        <img src="assets/layout/images/{{ layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white' }}.png" alt="logo">
+
+        <!-- text block ---------------------------------------------------------->
+        <span class="brand-text" style="display: flex;
+    flex-direction: column;        /* stacks title and subtitle */
+    margin-left: .5rem;            /* space between logo and text */
+    line-height: 1;
+">
+            <span class="brand-title">BEGENIUS</span>
+            <span class="brand-sub" style="color:#f2990a; font-size:10px;">CENTER</span>
+        </span>
+    </a>
+
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <button class="p-link layout-topbar-button">
+            <i class="pi pi-calendar"></i>
+            <span>Calendar</span>
+        </button>
+        <button class="p-link layout-topbar-button">
+            <i class="pi pi-user"></i>
+            <span>Profile</span>
+        </button>
+        <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
+            <i class="pi pi-cog"></i>
+            <span>Settings</span>
+        </button>
+    </div>
+</div>
