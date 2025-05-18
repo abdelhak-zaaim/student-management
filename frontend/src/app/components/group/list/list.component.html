@@ -29,7 +29,7 @@
             </p-toolbar>
 
             <p-table #dt [value]="groups!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
-                     [globalFilterFields]="['user.firstName','user.lastName','phone']"
+                     [globalFilterFields]="['name','description','id']"
                      [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                      [(selection)]="selectedGroups" selectionMode="multiple" [rowHover]="true" dataKey="id"
@@ -39,7 +39,7 @@
                         <h5 class="m-0">Manage groups</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search by group name..."
                                    class="w-full sm:w-auto"/>
                         </span>
                     </div>

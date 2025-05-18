@@ -291,6 +291,35 @@ export class ListComponent implements OnInit {
     /**
      * Helper method to display appropriate message after multiple deletes
      */
+    /**
+     * Filter groups by name
+     * @param name Name to search for
+     */
+    searchByName(name: string): void {
+        if (!name || name.trim() === '') {
+            // If empty search, load all groups
+            this.groupService.findAll().subscribe(response => {
+                this.groups = response.body;
+            });
+            return;
+        }
+
+        // Query backend with name parameter
+        this.groupService.query({ name: name.trim() }).subscribe(response => {
+            this.groups = response.body;
+
+            // Show message if no results
+            if (!this.groups || this.groups.length === 0) {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Search Results',
+                    detail: `No groups found with name containing "${name}"`,
+                    life: 3000
+                });
+            }
+        });
+    }
+
     private handleDeleteCompletion(successCount: number, failureCount: number) {
         // Update local array to remove deleted groups
         this.groupService.findAll().subscribe(response => {
@@ -458,7 +487,56 @@ export class ListComponent implements OnInit {
     }
 
     onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+        const searchValue = (event.target as HTMLInputElement).value;
+        if (searchValue) {
+            // First try exact match on name field (case insensitive)
+            const exactNameMatches = this.groups?.filter(g =>
+                g.name?.toLowerCase() === searchValue.toLowerCase()
+            );
+
+            // Then try contains match on name field
+            const containsNameMatches = this.groups?.filter(g =>
+                g.name?.toLowerCase().includes(searchValue.toLowerCase()) &&
+                !exactNameMatches?.includes(g)
+            );
+
+            // If we have exact or contains matches, use those results first
+            if ((exactNameMatches && exactNameMatches.length > 0) ||
+                (containsNameMatches && containsNameMatches.length > 0)) {
+                // Use PrimeNG's filter global but with our custom prioritized results
+                const prioritizedResults = [
+                    ...(exactNameMatches || []),
+                    ...(containsNameMatches || [])
+                ];
+
+                // Apply filter but preserve the original array
+                const originalGroups = [...(this.groups || [])];
+                table.filterGlobal(searchValue, 'contains');
+
+                // If there are prioritized results, set them manually
+                if (prioritizedResults.length > 0) {
+                    // Reset filter to capture original state
+                    table.reset();
+
+                    // Temporarily replace groups with our prioritized results
+                    // This is a workaround to handle PrimeNG's filtering
+                    if (this.groups) {
+                        this.groups = prioritizedResults;
+                        // After rendering, restore the original data and let the filter work normally
+                        setTimeout(() => {
+                            this.groups = originalGroups;
+                            table.filterGlobal(searchValue, 'contains');
+                        }, 0);
+                    }
+                }
+            } else {
+                // Default behavior for other fields or when no name matches
+                table.filterGlobal(searchValue, 'contains');
+            }
+        } else {
+            // No search value, clear filter
+            table.filterGlobal('', 'contains');
+        }
     }
 
     /**
