@@ -115,7 +115,95 @@
             </p-table>
         </div>
 
+        <!-- Create/Edit Student Dialog -->
+        <p-dialog [(visible)]="studentDialog"
+                  [style]="{width: '500px'}"
+                  [contentStyle]="{overflow: 'visible'}"
+                  header="Student Details"
+                  [modal]="true"
+                  [baseZIndex]="1000"
+                  styleClass="p-fluid student-dialog">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="firstName">First Name</label>
+                    <input type="text" pInputText id="firstName" [(ngModel)]="student.user!.firstName" required autofocus
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.user?.firstName)}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!student.user?.firstName)">First Name is required.</small>
+                </div>
 
+                <div class="field">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" pInputText id="lastName" [(ngModel)]="student.user!.lastName" required
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.user?.lastName)}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!student.user?.lastName)">Last Name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="student.user!.email" required
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.user?.email)}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!student.user?.email)">Email is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone</label>
+                    <input type="text" pInputText id="phone" [(ngModel)]="student.phone" required
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !student.phone}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !student.phone">Phone is required.</small>
+                </div>
+
+                <div class="field dropdown-field">
+                    <label for="studentGroup">Student Group</label>
+                    <p-dropdown id="studentGroup" name="studentGroup"
+                                [options]="studentGroups"
+                                [(ngModel)]="student.studentGroup"
+                                optionLabel="name"
+                                dataKey="id"
+                                [appendTo]="'body'"
+                                [style]="{width: '100%'}"
+                                placeholder="Select a Group"
+                                [showClear]="true">
+                    </p-dropdown>
+                    <div *ngIf="studentGroups.length === 0" class="p-error mt-1">
+                        No groups available. Please create a group first.
+                    </div>
+                </div>
+                            </ng-template>
+
+                            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveStudent()"></button>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveStudent()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Student Dialog -->
+        <p-dialog [(visible)]="deleteStudentDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="student">Are you sure you want to delete <b>{{student.user?.firstName}} {{student.user?.lastName}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteStudentDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Multiple Students Dialog -->
+        <p-dialog [(visible)]="deleteStudentsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete the selected students?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteStudentsDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
     </div>
 </div>
 

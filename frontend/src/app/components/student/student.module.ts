@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {ListComponent} from "./list/list.component";
 import {UpdateComponent} from "./update/update.component";
 import {StudentComponent} from "./student.component";
@@ -16,13 +17,16 @@ import {RippleModule} from "primeng/ripple";
 import {ChipsModule} from "primeng/chips";
 import {StudentRoutingModule} from "./student-routing.module";
 import {MessageService} from "primeng/api";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {InputTextModule} from "primeng/inputtext";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {ButtonModule} from "primeng/button";
 
 
 @NgModule({
     declarations: [ListComponent, UpdateComponent, StudentComponent],
     imports: [
         CommonModule,
+        FormsModule,
         ToastModule,
         ToolbarModule,
         FileUploadModule,
@@ -33,10 +37,14 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
         RatingModule,
         RippleModule,
         ChipsModule,
+        InputTextModule,
+        InputTextareaModule,
+        ButtonModule,
+        DropdownModule,
         StudentRoutingModule
     ],
     providers: [
-        MessageService           // <-- add it here
+        MessageService
     ],
 
 })

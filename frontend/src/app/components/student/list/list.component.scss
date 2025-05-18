@@ -29,4 +29,86 @@
       }
     }
   }
+
+  // Form dialog styling
+  .p-dialog {
+    z-index: 1000 !important; // Ensure dialog appears above other elements
+
+    .p-dialog-content {
+      overflow: visible !important; // Allow dropdown to extend beyond dialog
+
+      .field {
+        margin-bottom: 1.5rem;
+        position: relative; // Ensure proper positioning context
+
+        label {
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+      }
+    }
+
+    // Style the footer buttons
+    .p-dialog-footer {
+      .p-button-text {
+        &.p-button {
+          color: #3B82F6;
+
+          &:hover {
+            background: rgba(59, 130, 246, 0.1);
+          }
+        }
+      }
+    }
+  }
+
+  // Dropdown styling
+  .p-dropdown {
+    width: 100%;
+
+    .p-dropdown-label {
+      padding: 0.75rem;
+    }
+
+    .p-dropdown-panel {
+      z-index: 1001 !important; // Higher than dialog
+    }
+  }
+
+  // Specific styling for dropdown in dialog
+  .dropdown-field {
+    position: relative;
+    z-index: 1001;
+
+    .p-dropdown {
+      width: 100%;
+    }
+  }
+
+  // Student dialog specific styling
+  .student-dialog {
+    .p-dialog-content {
+      overflow: visible !important;
+    }
+  }
+
+  // Fix overlay for all PrimeNG components
+  .p-component-overlay {
+    z-index: 1000 !important;
+  }
+
+  // Ensure dropdown appears above dialog
+  .p-dropdown-panel {
+    z-index: 1001 !important;
+  }
+}
+
+// Additional global styles for proper overlay handling
+::ng-deep body .p-dropdown-panel {
+  z-index: 1100 !important; // Ensure it's higher than anything else
+}
+
+::ng-deep .p-dialog-mask {
+  z-index: 999 !important; // Keep the mask below the dialog
 }
