@@ -59,4 +59,22 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
         countQuery = "select count(student) from Student student where student.studentGroup.id = :studentGroupId"
     )
     Page<Student> findByStudentGroupId(@Param("studentGroupId") Long studentGroupId, Pageable pageable);
+    
+    /**
+     * Check if any students are associated with a student group.
+     *
+     * @param studentGroupId the ID of the student group
+     * @return true if students exist for the group, false otherwise
+     */
+    @Query("select case when count(student) > 0 then true else false end from Student student where student.studentGroup.id = :studentGroupId")
+    boolean existsByStudentGroupId(@Param("studentGroupId") Long studentGroupId);
+    
+    /**
+     * Count the number of students in a student group.
+     *
+     * @param studentGroupId the ID of the student group
+     * @return the number of students in the group
+     */
+    @Query("select count(student) from Student student where student.studentGroup.id = :studentGroupId")
+    long countByStudentGroupId(@Param("studentGroupId") Long studentGroupId);
 }

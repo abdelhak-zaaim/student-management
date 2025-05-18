@@ -44,8 +44,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Groups',
                 items: [
-                    { label: 'List Groups', icon: 'pi pi-clone',       routerLink: ['/groups/list'] },
-                    { label: 'Add Group',  icon: 'pi pi-plus-circle', routerLink: ['/groups/add'] }
+                    { label: 'Groups', icon: 'pi pi-clone',       routerLink: ['/groups/list'] },
                 ]
             }
         ];

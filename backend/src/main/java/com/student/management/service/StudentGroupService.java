@@ -2,6 +2,8 @@ package com.student.management.service;
 
 import com.student.management.domain.StudentGroup;
 import com.student.management.repository.StudentGroupRepository;
+import com.student.management.repository.StudentRepository;
+import com.student.management.service.exception.BusinessException;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +22,11 @@ public class StudentGroupService {
     private static final Logger LOG = LoggerFactory.getLogger(StudentGroupService.class);
 
     private final StudentGroupRepository studentGroupRepository;
+    private final StudentRepository studentRepository;
 
-    public StudentGroupService(StudentGroupRepository studentGroupRepository) {
+    public StudentGroupService(StudentGroupRepository studentGroupRepository, StudentRepository studentRepository) {
         this.studentGroupRepository = studentGroupRepository;
+        this.studentRepository = studentRepository;
     }
 
     /**
@@ -108,9 +112,20 @@ public class StudentGroupService {
      * Delete the studentGroup by id.
      *
      * @param id the id of the entity.
+     * @throws BusinessException if the student group has associated students
      */
     public void delete(Long id) {
         LOG.debug("Request to delete StudentGroup : {}", id);
+        
+        // Check if there are students associated with this group
+        if (studentRepository.existsByStudentGroupId(id)) {
+            long studentCount = studentRepository.countByStudentGroupId(id);
+            throw new BusinessException(
+                "Cannot delete Student Group with ID " + id + " because it has " + 
+                studentCount + " associated student(s). Remove all students from the group first."
+            );
+        }
+        
         studentGroupRepository.deleteById(id);
     }
 }

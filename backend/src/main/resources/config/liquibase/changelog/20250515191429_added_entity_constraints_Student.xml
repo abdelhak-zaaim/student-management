@@ -16,7 +16,21 @@
                                  referencedColumnNames="id"
                                  referencedTableName="user"
                                  />
-
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    
+    <changeSet id="20250515191429-2" author="zaaims">
+        
+        <addForeignKeyConstraint baseColumnNames="student_group_id"
+                                 baseTableName="student"
+                                 constraintName="fk_student__student_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="student_group"/>
+    </changeSet>
+</databaseChangeLog>
         <addForeignKeyConstraint baseColumnNames="student_group_id"
                                  baseTableName="student"
                                  constraintName="fk_student__student_group_id"
