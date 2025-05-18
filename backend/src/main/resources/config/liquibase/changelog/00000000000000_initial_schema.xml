@@ -70,9 +70,6 @@
                                  referencedColumnNames="id"
                                  referencedTableName="user"/>
 
-        <addNotNullConstraint   columnName="password_hash"
-                                columnDataType="varchar(60)"
-                                tableName="user"/>
         <loadData
                   file="config/liquibase/data/authority.csv"
                   separator=";"

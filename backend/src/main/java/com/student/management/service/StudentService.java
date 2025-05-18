@@ -37,8 +37,18 @@ public class StudentService {
      */
     public Student save(Student student) {
         LOG.debug("Request to save Student : {}", student);
-        Long userId = student.getUser().getId();
-        userRepository.findById(userId).ifPresent(student::user);
+        if (student.getUser() != null) {
+            if (student.getUser().getId() != null) {
+                // generate login
+
+                userRepository.findById(student.getUser().getId()).ifPresent(student::user);
+            } else {
+                // If no user ID, save the new user first
+
+                student.getUser().setLogin("student"+student.getUser().getId());
+                student.setUser(userRepository.save(student.getUser()));
+            }
+        }
         return studentRepository.save(student);
     }
 
