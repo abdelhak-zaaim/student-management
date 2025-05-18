@@ -37,19 +37,33 @@ public class StudentService {
      */
     public Student save(Student student) {
         LOG.debug("Request to save Student : {}", student);
+        
+        // Validate phone number
+        validatePhoneNumber(student);
+        
         if (student.getUser() != null) {
             if (student.getUser().getId() != null) {
-                // generate login
-
+                // If user has ID, try to find existing user
                 userRepository.findById(student.getUser().getId()).ifPresent(student::user);
             } else {
                 // If no user ID, save the new user first
-
-                student.getUser().setLogin("student"+student.getUser().getId());
+                // Email is optional, don't require it
                 student.setUser(userRepository.save(student.getUser()));
             }
         }
         return studentRepository.save(student);
+    }
+    
+    /**
+     * Validate that the phone number is exactly 10 digits
+     */
+    private void validatePhoneNumber(Student student) {
+        if (student.getPhone() != null) {
+            String phone = student.getPhone();
+            if (phone.length() != 10 || !phone.matches("\\d{10}")) {
+                throw new IllegalArgumentException("Phone number must be exactly 10 digits");
+            }
+        }
     }
 
     /**
@@ -60,6 +74,42 @@ public class StudentService {
      */
     public Student update(Student student) {
         LOG.debug("Request to update Student : {}", student);
+        
+        // Validate phone number
+        validatePhoneNumber(student);
+        
+        if (student.getUser() != null && student.getUser().getId() != null) {
+            // Get the existing user from the database
+            userRepository.findById(student.getUser().getId()).ifPresent(existingUser -> {
+                // Update user properties that are not null in the incoming request
+                if (student.getUser().getFirstName() != null) {
+                    existingUser.setFirstName(student.getUser().getFirstName());
+                }
+                if (student.getUser().getLastName() != null) {
+                    existingUser.setLastName(student.getUser().getLastName());
+                }
+                // Email is optional, update if provided but don't require it
+                if (student.getUser().getEmail() != null) {
+                    existingUser.setEmail(student.getUser().getEmail());
+                }
+                if (student.getUser().getLogin() != null) {
+                    existingUser.setLogin(student.getUser().getLogin());
+                }
+                if (student.getUser().getImageUrl() != null) {
+                    existingUser.setImageUrl(student.getUser().getImageUrl());
+                }
+                if (student.getUser().getLangKey() != null) {
+                    existingUser.setLangKey(student.getUser().getLangKey());
+                }
+                
+                // Save updated user
+                userRepository.save(existingUser);
+                
+                // Set the updated user to the student
+                student.setUser(existingUser);
+            });
+        }
+        
         return studentRepository.save(student);
     }
 
@@ -72,7 +122,42 @@ public class StudentService {
     public Optional<Student> partialUpdate(Student student) {
         LOG.debug("Request to partially update Student : {}", student);
 
-        return studentRepository.findById(student.getId()).map(studentRepository::save);
+        // Validate phone number if it's being updated
+        if (student.getPhone() != null) {
+            validatePhoneNumber(student);
+        }
+        
+        // Update user data if provided
+        if (student.getUser() != null && student.getUser().getId() != null) {
+            userRepository.findById(student.getUser().getId()).ifPresent(existingUser -> {
+                // Update only the fields that are provided
+                if (student.getUser().getFirstName() != null) {
+                    existingUser.setFirstName(student.getUser().getFirstName());
+                }
+                if (student.getUser().getLastName() != null) {
+                    existingUser.setLastName(student.getUser().getLastName());
+                }
+                // Email is optional
+                if (student.getUser().getEmail() != null) {
+                    existingUser.setEmail(student.getUser().getEmail());
+                }
+                
+                // Save user updates
+                userRepository.save(existingUser);
+                student.setUser(existingUser);
+            });
+        }
+    
+        return studentRepository.findById(student.getId())
+            .map(existingStudent -> {
+                if (student.getPhone() != null) {
+                    existingStudent.setPhone(student.getPhone());
+                }
+                if (student.getStudentGroup() != null) {
+                    existingStudent.setStudentGroup(student.getStudentGroup());
+                }
+                return studentRepository.save(existingStudent);
+            });
     }
 
     /**
