@@ -67,6 +67,13 @@ public class StudentService {
                     user.setLastModifiedBy("system");
                 }
                 
+                // Email is optional for students
+                if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                    // Set a placeholder email or leave it null as the database allows
+                    // The schema shows email is nullable in the database
+                    user.setEmail(null);
+                }
+                
                 // Save the user first
                 user = userRepository.save(user);
                 
@@ -116,10 +123,17 @@ public class StudentService {
                 if (student.getUser().getLastName() != null) {
                     existingUser.setLastName(student.getUser().getLastName());
                 }
-                // Email is optional, update if provided but don't require it
+                
+                // Handle email - it can be set to null explicitly for students
+                // If the incoming email is empty string, set it to null
                 if (student.getUser().getEmail() != null) {
-                    existingUser.setEmail(student.getUser().getEmail());
+                    if (student.getUser().getEmail().isEmpty()) {
+                        existingUser.setEmail(null);
+                    } else {
+                        existingUser.setEmail(student.getUser().getEmail());
+                    }
                 }
+                
                 if (student.getUser().getLogin() != null) {
                     existingUser.setLogin(student.getUser().getLogin());
                 }
