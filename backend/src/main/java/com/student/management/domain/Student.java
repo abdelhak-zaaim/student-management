@@ -36,7 +36,7 @@ public class Student implements Serializable {
     @JsonIgnoreProperties(value = { "student" }, allowSetters = true)
     private Set<Payment> payments = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "students", "subjects" }, allowSetters = true)
     private StudentGroup studentGroup;
 

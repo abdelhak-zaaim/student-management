@@ -1,4 +1,13 @@
 id;login;password_hash;first_name;last_name;email;image_url;activated;lang_key;created_by;last_modified_by
 1;admin;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helgx0S;Administrator;Administrator;admin@localhost;;true;fr;system;system
 3;prof;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;User;User;user@localhost;;true;fr;system;system
-
+4;student01;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;One;student01@localhost;;true;fr;system;system
+5;student02;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Two;student02@localhost;;true;fr;system;system
+6;student03;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Three;student03@localhost;;true;fr;system;system
+7;student04;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Four;student04@localhost;;true;fr;system;system
+8;student05;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Five;student05@localhost;;true;fr;system;system
+9;student06;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Six;student06@localhost;;true;fr;system;system
+10;student07;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Seven;student07@localhost;;true;fr;system;system
+11;student08;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Eight;student08@localhost;;true;fr;system;system
+12;student09;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Nine;student09@localhost;;true;fr;system;system
+13;student10;$2a$12$z3FVtXZaQ4frTzqRcB.SBeI.o.Rl4QgZVI1MiRZ7j06rr6Helix0S;Student;Ten;student10@localhost;;true;fr;system;system
