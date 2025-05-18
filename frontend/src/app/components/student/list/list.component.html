@@ -22,10 +22,11 @@
             </p-toolbar>
 
             <p-table #dt [value]="students!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
-                     [globalFilterFields]="['user.firstName','user.lastName','phone']" [rows]="10"
+                     [globalFilterFields]="['user.firstName','user.lastName','phone']"
                      [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                     [(selection)]="selectedStudents" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                     [(selection)]="selectedStudents" selectionMode="multiple" [rowHover]="true" dataKey="id"
+                     tableStyleClass="equilibrated">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Manage Students</h5>
@@ -36,29 +37,39 @@
                         </span>
                     </div>
                 </ng-template>
+                <!-- Define column groups for balanced width -->
+                <ng-template pTemplate="colgroup">
+                    <col style="width:3rem">          <!-- checkbox column -->
+                    <col style="width:10%">           <!-- Id -->
+                    <col style="width:15%">           <!-- First Name -->
+                    <col style="width:15%">           <!-- Last Name -->
+                    <col style="width:20%">           <!-- Email -->
+                    <col style="width:20%">           <!-- Group -->
+                    <col style="width:20%">           <!-- Actions -->
+                </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width: 3rem">
                             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                         </th>
-                        <th pSortableColumn="code">Id
+                        <th pSortableColumn="id" class="spaced-column centered-column">Id
                             <p-sortIcon field="id"></p-sortIcon>
                         </th>
 
-                        <th pSortableColumn="code">First Name
+                        <th pSortableColumn="firstName" class="spaced-column centered-column">First Name
                             <p-sortIcon field="firstName"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="name">Last Name
+                        <th pSortableColumn="lastName" class="spaced-column centered-column">Last Name
                             <p-sortIcon field="lastName"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="price">Email
+                        <th pSortableColumn="email" class="spaced-column centered-column">Email
                             <p-sortIcon field="email"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="category">Group
+                        <th pSortableColumn="group" class="spaced-column centered-column">Group
                             <p-sortIcon field="group"></p-sortIcon>
                         </th>
 
-                        <th></th>
+                        <th class="actions-column centered-column">Actions</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-student>
@@ -66,31 +77,32 @@
                         <td>
                             <p-tableCheckbox [value]="student"></p-tableCheckbox>
                         </td>
-                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Code</span>
-                            {{ student.id || student.id }}
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Id</span>
+                            {{ student.id }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td class="spaced-column centered-column">
                             <span class="p-column-title">First Name</span>
                             {{ student.user?.firstName }}
                         </td>
 
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Last Namee</span>
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Last Name</span>
                             {{ student.user?.lastName }}
                         </td>
 
-                        <td style="width:14%; min-width:10rem;">
+                        <td class="spaced-column centered-column">
                             <span class="p-column-title">Email</span>
                             {{ student.phone }}
                         </td>
 
-                        <td style="width:14%; min-width:10rem;">
+                        <td class="spaced-column centered-column">
                             <span class="p-column-title">Group</span>
                             {{ student.studentGroup?.name }}
                         </td>
 
-                        <td>
-                            <div class="flex">
+                        <td class="actions-column">
+                            <div class="flex justify-content-center">
                                 <button pButton pRipple icon="pi pi-pencil"
                                         class="p-button-rounded p-button-success mr-2"
                                         (click)="editStudent(student)"></button>

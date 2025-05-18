@@ -1,0 +1,32 @@
+:host ::ng-deep {
+  .p-datatable {
+    // Add spacing between columns
+    th.spaced-column, td.spaced-column {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    // Center the content in columns
+    th.centered-column, td.centered-column {
+      text-align: center;
+    }
+
+    // Center the actions buttons
+    .actions-column {
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    // Keep our table layout consistent
+    &.equilibrated {
+      table-layout: fixed;
+    }
+
+    // Ensure centered alignment for sortable columns
+    th.p-sortable-column {
+      .p-sortable-column-icon {
+        margin-left: 0.5rem;
+      }
+    }
+  }
+}
