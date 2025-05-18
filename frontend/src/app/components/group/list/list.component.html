@@ -40,21 +40,20 @@
                 <!-- Define fixed column widths for equilibrium -->
                 <ng-template pTemplate="colgroup">
                     <col style="width:3rem">          <!-- checkbox column -->
-                    <col style="width:10%">           <!-- Id -->
-                    <col style="width:15%">           <!-- First Name -->
-                    <col style="width:15%">           <!-- Last Name -->
-                    <col style="width:20%">           <!-- Email -->
-                    <col style="width:20%">           <!-- Group -->
+                    <col style="width:20%">           <!-- Id -->
+                    <col style="width:55%">           <!-- Name -->
+                    <col style="width:20%">           <!-- Actions -->
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width:3rem">
                             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                         </th>
-                        <th pSortableColumn="id">Id
+                        <th pSortableColumn="id" class="centered-column">Id
                             <p-sortIcon field="id"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="name">Name
+
+                        <th pSortableColumn="name" class="centered-column">Group
                             <p-sortIcon field="name"></p-sortIcon>
                         </th>
                         <th class="actions-column centered-column">Actions</th>
@@ -70,19 +69,7 @@
                             {{ group.id }}
                         </td>
                         <td class="spaced-column centered-column">
-                            <span class="p-column-title">First Name</span>
-                            {{ group.user?.firstName }}
-                        </td>
-                        <td class="spaced-column centered-column">
-                            <span class="p-column-title">Last Name</span>
-                            {{ group.user?.lastName }}
-                        </td>
-                        <td class="spaced-column centered-column">
-                            <span class="p-column-title">Email</span>
-                            {{ group.user?.email }}
-                        </td>
-                        <td class="spaced-column centered-column">
-                            <span class="p-column-title">Group</span>
+                            <span class="p-column-title">Name</span>
                             {{ group.name }}
                         </td>
                         <td>
