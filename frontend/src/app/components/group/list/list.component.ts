@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Group} from "../../../models/group.model";
-import {MessageService} from "primeng/api";
+import {MessageService, MenuItem} from "primeng/api";
 import {Table} from "primeng/table";
 import {GroupService} from "../group.service";
 
@@ -27,7 +27,6 @@ export class ListComponent implements OnInit {
     selectedGroupStudents: any[] = [];
     selectedGroupForStudents: Group | null = null;
     loadingStudents: boolean = false;
-    studentCols: any[] = [];
 
     rowsPerPageOptions = [5, 10, 20];
 
@@ -42,14 +41,6 @@ export class ListComponent implements OnInit {
         this.cols = [
             {field: 'name', header: 'Name'},
             {field: 'description', header: 'Description'},
-        ];
-
-        this.studentCols = [
-            {field: 'id', header: 'ID'},
-            {field: 'firstName', header: 'First Name'},
-            {field: 'lastName', header: 'Last Name'},
-            {field: 'email', header: 'Email'},
-            {field: 'phone', header: 'Phone'}
         ];
     }
 
@@ -108,6 +99,75 @@ export class ListComponent implements OnInit {
         this.studentsDialog = false;
         this.selectedGroupForStudents = null;
         this.selectedGroupStudents = [];
+    }
+
+    /**
+     * Export student list to CSV using native browser features
+     */
+    exportToCSV() {
+        if (!this.selectedGroupStudents || this.selectedGroupStudents.length === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'No data to export',
+                life: 3000
+            });
+            return;
+        }
+
+        const groupName = this.selectedGroupForStudents?.name || 'group';
+        const filename = `students_${groupName}_${new Date().toISOString().slice(0,10)}.csv`;
+
+        // Define CSV headers
+        const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone'];
+
+        // Transform data to CSV rows
+        const csvData = this.selectedGroupStudents.map(student => {
+            return [
+                student.id,
+                student.firstName,
+                student.lastName,
+                student.email || '',
+                student.phone || ''
+            ].join(',');
+        });
+
+        // Combine headers and data
+        const csv = [
+            headers.join(','),
+            ...csvData
+        ].join('\n');
+
+        // Create download using a temporary anchor element
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', filename);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'CSV file exported successfully',
+            life: 3000
+        });
+    }
+
+    /**
+     * Export student list to PDF (placeholder for future implementation)
+     */
+    exportToPDF() {
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Info',
+            detail: 'PDF export functionality will be added soon',
+            life: 3000
+        });
     }
 
 

@@ -157,6 +157,11 @@
                               [modal]="true"
                               [style]="{width:'800px', maxWidth: '90vw'}"
                               [maximizable]="true">
+                        <ng-template pTemplate="header">
+                            <div class="flex justify-content-between align-items-center w-full px-3">
+                                <h3 class="m-0">{{ selectedGroupForStudents ? 'Students in ' + selectedGroupForStudents.name : 'Group Students' }}</h3>
+                            </div>
+                        </ng-template>
                         <ng-template pTemplate="content">
                             <p-progressBar *ngIf="loadingStudents" mode="indeterminate" [style]="{'height': '6px'}"></p-progressBar>
 
@@ -168,13 +173,26 @@
                                 </div>
                             </div>
 
-                            <p-table [value]="selectedGroupStudents"
-                                     [columns]="studentCols"
+                            <p-table #studentsTable
+                                     [value]="selectedGroupStudents"
                                      [responsive]="true"
                                      [rows]="10"
                                      [paginator]="true"
                                      [rowsPerPageOptions]="[5,10,25]"
+                                     [showCurrentPageReport]="true"
+                                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students"
+                                     [globalFilterFields]="['id', 'firstName', 'lastName', 'email', 'phone']"
+                                     styleClass="p-datatable-sm p-datatable-gridlines"
                                      *ngIf="!loadingStudents && selectedGroupStudents.length > 0">
+                                <ng-template pTemplate="caption">
+                                    <div class="flex justify-content-between align-items-center">
+                                        <h5 class="m-0">Student List</h5>
+                                        <span class="p-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <input pInputText type="text" #searchInput (input)="studentsTable.filterGlobal(searchInput.value, 'contains')" placeholder="Search..." />
+                                        </span>
+                                    </div>
+                                </ng-template>
                                 <ng-template pTemplate="header">
                                     <tr>
                                         <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
@@ -196,7 +214,18 @@
                             </p-table>
                         </ng-template>
                         <ng-template pTemplate="footer">
-                            <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="hideStudentsDialog()"></button>
+                            <div class="flex justify-content-between align-items-center w-full">
+                                <div>
+                                    <button pButton
+                                        *ngIf="!loadingStudents && selectedGroupStudents.length > 0"
+                                        label="Export CSV"
+                                        icon="pi pi-download"
+                                        class="p-button-info"
+                                        (click)="exportToCSV()">
+                                    </button>
+                                </div>
+                                <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="hideStudentsDialog()"></button>
+                            </div>
                         </ng-template>
                     </p-dialog>
     </div>
