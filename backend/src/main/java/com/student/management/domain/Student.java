@@ -41,16 +41,8 @@ public class Student implements Serializable {
     private StudentGroup studentGroup;
 
 
-    @PrePersist
-    public void prePersist() {
-        // generate the login
-        if (this.user == null) {
-            this.user = new User();
-        }
-        if (this.user.getLogin() == null) {
-            this.user.setLogin("student-" + this.id);
-        }
-    }
+    // Removing ineffective prePersist method as the ID isn't available at this point
+    // Login generation is now handled in the StudentService
 
 
     

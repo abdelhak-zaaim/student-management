@@ -1,6 +1,7 @@
 package com.student.management.service;
 
 import com.student.management.domain.Student;
+import com.student.management.domain.User;
 import com.student.management.repository.StudentRepository;
 import com.student.management.repository.UserRepository;
 import java.util.Optional;
@@ -46,9 +47,36 @@ public class StudentService {
                 // If user has ID, try to find existing user
                 userRepository.findById(student.getUser().getId()).ifPresent(student::user);
             } else {
-                // If no user ID, save the new user first
-                // Email is optional, don't require it
-                student.setUser(userRepository.save(student.getUser()));
+                // If no user ID, prepare the new user
+                User user = student.getUser();
+                
+                // Set required fields for User entity
+                if (user.getLogin() == null) {
+                    // Generate a temporary unique login based on timestamp
+                    String tempLogin = "student" + System.currentTimeMillis();
+                    user.setLogin(tempLogin);
+                }
+
+                if (user.getLangKey() == null) {
+                    user.setLangKey("en");
+                }
+                if (user.getCreatedBy() == null) {
+                    user.setCreatedBy("system");
+                }
+                if (user.getLastModifiedBy() == null) {
+                    user.setLastModifiedBy("system");
+                }
+                
+                // Save the user first
+                user = userRepository.save(user);
+                
+                // Now update the login to use the actual ID if it's a temporary login
+                if (user.getLogin().startsWith("student") && user.getLogin().substring(7).matches("\\d+")) {
+                    user.setLogin("student" + user.getId());
+                    user = userRepository.save(user);
+                }
+                
+                student.setUser(user);
             }
         }
         return studentRepository.save(student);
