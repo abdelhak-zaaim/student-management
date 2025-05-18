@@ -67,18 +67,28 @@ export class ListComponent implements OnInit {
             );
     }
 
+     refreshStudents() {
+         // Load fresh data from server
+         this.studentService.findAll().subscribe(data => {
+             this.students = data.body;
+             console.log('Refreshed students:', this.students);
+         });
+     }
+
      ngOnInit():void {
-        // Load students
-        this.studentService.findAll().subscribe(data => {
-            this.students = data.body;
-            console.log('Loaded students:', this.students);
+         // Load students
+         this.refreshStudents();
+
+         // Log student structure on initial load
+         this.studentService.findAll().subscribe(data => {
+             const students = data.body;
 
              // Log the first student to examine structure
-             if (this.students && this.students.length > 0) {
-                 console.log('First student structure:', JSON.stringify(this.students[0], null, 2));
+             if (students && students.length > 0) {
+                 console.log('First student structure:', JSON.stringify(students[0], null, 2));
 
                  // Check if user IDs are present in the loaded data
-                 const firstStudent = this.students[0];
+                 const firstStudent = students[0];
                  console.log('User ID check:',
                      firstStudent.id ? `Student ID: ${firstStudent.id}` : 'No student ID',
                      firstStudent.user?.id ? `User ID: ${firstStudent.user.id}` : 'No user ID'
@@ -166,11 +176,12 @@ export class ListComponent implements OnInit {
 
     openNew() {
         // Initialize with empty objects for nested properties
+        // Email is optional, so don't initialize it (will be undefined)
         this.student = {
             user: {
                 firstName: '',
                 lastName: '',
-                email: ''
+                // email is optional, omitting it sets it to undefined
             },
             phone: '',
             studentGroup: null
@@ -204,11 +215,11 @@ export class ListComponent implements OnInit {
                 id: student.user.id, // Preserve the user ID for update
                 firstName: student.user.firstName || '',
                 lastName: student.user.lastName || '',
-                email: student.user.email || ''
+                email: student.user.email || '' // Use empty string if email not provided
             } : {
                 firstName: '',
                 lastName: '',
-                email: ''
+                email: '' // Initialize with empty string (will be treated as optional)
             }
         };
 
@@ -328,6 +339,79 @@ export class ListComponent implements OnInit {
 
 
 
+    /**
+     * Helper method to merge student data between different sources
+     * Ensures all required properties exist in the final object
+     */
+    mergeStudentData(target: Student, source: Student): Student {
+        const result: Student = { ...target };
+
+        // Handle user object
+        if (!result.user) {
+            result.user = { ...source.user };
+        } else {
+            result.user = {
+                id: result.user.id || source.user?.id,
+                firstName: result.user.firstName || source.user?.firstName || '',
+                lastName: result.user.lastName || source.user?.lastName || '',
+                email: result.user.email !== undefined ? result.user.email : (source.user?.email || '')
+            };
+        }
+
+        // Handle other properties
+        result.phone = result.phone || source.phone;
+        result.studentGroup = result.studentGroup || source.studentGroup;
+
+        console.log('Merged student data:', result);
+        return result;
+    }
+
+    /**
+     * Validates that a phone number has exactly 10 digits and starts with 06 or 07
+     */
+    isValidPhone(phone: string | null | undefined): boolean {
+        if (!phone) return false;
+
+        // Remove any non-digit characters for validation
+        const digitsOnly = phone.replace(/\D/g, '');
+
+        // Check if it's exactly 10 digits
+        if (digitsOnly.length !== 10) return false;
+
+        // Check if it starts with 06 or 07
+        return digitsOnly.startsWith('06') || digitsOnly.startsWith('07');
+    }
+
+    /**
+     * Validates email format if provided (optional)
+     */
+    isValidEmail(email: string | undefined): boolean {
+        if (!email || email.trim() === '') return true; // Empty or undefined is valid since it's optional
+
+        // Simple email validation regex
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    }
+
+    /**
+     * Safe accessor method for template to check email validity
+     * This avoids null/undefined errors in the template
+     */
+    isEmailValid(): boolean {
+        if (!this.student || !this.student.user) return true;
+        const email = this.student.user.email;
+        return this.isValidEmail(email);
+    }
+
+    /**
+     * Check if phone starts with valid prefix (06 or 07)
+     */
+    hasValidPhonePrefix(phone: string | null | undefined): boolean {
+        if (!phone || phone.length < 2) return false;
+        const digitsOnly = phone.replace(/\D/g, '');
+        return digitsOnly.startsWith('06') || digitsOnly.startsWith('07');
+    }
+
     findIndexById(id: number): number {
         let index = -1;
         for (let i = 0; i < this.students!.length; i++) {
@@ -341,6 +425,41 @@ export class ListComponent implements OnInit {
     }
 
 
+
+    /**
+     * Filter phone input to only allow valid phone formats
+     */
+    onPhoneInput(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const value = input.value;
+
+        // Remove any non-digit characters
+        const digitsOnly = value.replace(/\D/g, '');
+
+        // Check prefix - if there are at least 2 digits and they're not 06 or 07
+        if (digitsOnly.length >= 2 && !digitsOnly.startsWith('06') && !digitsOnly.startsWith('07')) {
+            // If user is typing a new number, auto-correct to start with 06
+            if (digitsOnly.length === 2) {
+                const corrected = '06';
+                input.value = corrected;
+                this.student.phone = corrected;
+                return;
+            }
+        }
+
+        // Update the input value if it changed
+        if (digitsOnly !== value) {
+            input.value = digitsOnly;
+            // Update the model
+            this.student.phone = digitsOnly;
+        }
+
+        // Enforce 10 digit max
+        if (digitsOnly.length > 10) {
+            input.value = digitsOnly.substring(0, 10);
+            this.student.phone = digitsOnly.substring(0, 10);
+        }
+    }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
@@ -356,7 +475,7 @@ export class ListComponent implements OnInit {
             user: {
                 firstName: '',
                 lastName: '',
-                email: ''
+                email: '' // Empty string for optional email
             },
             phone: '',
             studentGroup: null
@@ -392,21 +511,31 @@ export class ListComponent implements OnInit {
             hasErrors = true;
         }
 
-        if (!this.student.user?.email?.trim()) {
+        // Email is optional, but if provided must be valid
+        if (!this.isEmailValid()) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Email is required',
+                detail: 'Email format is invalid',
                 life: 3000
             });
             hasErrors = true;
         }
 
+        // Phone is required and must follow validation rules
         if (!this.student.phone?.trim()) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Phone number is required',
+                life: 3000
+            });
+            hasErrors = true;
+        } else if (!this.isValidPhone(this.student.phone)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Phone must be 10 digits and start with 06 or 07',
                 life: 3000
             });
             hasErrors = true;
@@ -418,8 +547,20 @@ export class ListComponent implements OnInit {
 
         // Ensure we have all required objects properly set
         if (!this.student.user) {
-            this.student.user = { firstName: '', lastName: '', email: '' };
+            this.student.user = {
+                firstName: '',
+                lastName: '',
+                email: '' // Empty string - will be treated as optional
+            };
         }
+
+        // If email is empty string, consider it as intentionally empty (valid but empty)
+        if (this.student.user.email === '') {
+            // Keep it as empty string - this is valid for optional fields
+        }
+
+        // Store current student data for reference if update doesn't return complete data
+        const currentData = { ...this.student };
 
         // Create a clean copy that follows the Student interface
         // Make sure to include the user ID when updating
@@ -448,10 +589,33 @@ export class ListComponent implements OnInit {
                 response => {
                     console.log('Update response:', response.body);
 
+                    // Create a complete updated student object
+                    let updatedStudent: Student;
+
+                    if (response.body) {
+                        updatedStudent = response.body;
+
+                        // Ensure all necessary properties exist in the response
+                        if (!updatedStudent.user || !updatedStudent.user.firstName || !updatedStudent.user.lastName) {
+                            console.warn('Response missing user data, merging with sent data');
+                            updatedStudent = this.mergeStudentData(updatedStudent, studentToSave);
+                        }
+                    } else {
+                        // Use the submitted data if no response body
+                        console.warn('No response body, using sent data');
+                        updatedStudent = { ...studentToSave };
+                    }
+
+                    // Log the final update student for debugging
+                    console.log('Final updated student:', updatedStudent);
+
                     // Update the local array with the updated student
                     const index = this.findIndexById(studentToSave.id!);
                     if (index !== -1 && this.students) {
-                        this.students[index] = response.body || studentToSave;
+                        this.students[index] = updatedStudent;
+                    } else {
+                        console.warn('Could not find student in local array, refreshing from server');
+                        this.refreshStudents(); // Refresh all students if we can't find the one to update
                     }
 
                     this.messageService.add({
@@ -479,9 +643,28 @@ export class ListComponent implements OnInit {
             this.studentService.create(studentToSave).subscribe(
                 response => {
                     console.log('Create response:', response.body);
-                    const newStudent = response.body;
+
+                    let newStudent: Student;
+
+                    if (response.body) {
+                        newStudent = response.body;
+
+                        // Ensure all necessary properties exist in the response
+                        if (!newStudent.user || !newStudent.user.firstName || !newStudent.user.lastName) {
+                            console.warn('Response missing user data, merging with sent data');
+                            newStudent = this.mergeStudentData(newStudent, studentToSave);
+                        }
+                    } else {
+                        // Use the submitted data if no response body
+                        console.warn('No response body, using sent data');
+                        newStudent = { ...studentToSave };
+                    }
+
                     if (newStudent && this.students) {
                         this.students.push(newStudent);
+                    } else {
+                        console.warn('Issue with adding new student to array, refreshing from server');
+                        this.refreshStudents(); // Refresh all students if we can't add the new one
                     }
 
                     this.messageService.add({

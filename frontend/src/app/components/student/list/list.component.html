@@ -56,17 +56,17 @@
                             <p-sortIcon field="id"></p-sortIcon>
                         </th>
 
-                        <th pSortableColumn="firstName" class="spaced-column centered-column">First Name
-                            <p-sortIcon field="firstName"></p-sortIcon>
+                        <th pSortableColumn="user.firstName" class="spaced-column centered-column">First Name
+                            <p-sortIcon field="user.firstName"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="lastName" class="spaced-column centered-column">Last Name
-                            <p-sortIcon field="lastName"></p-sortIcon>
+                        <th pSortableColumn="user.lastName" class="spaced-column centered-column">Last Name
+                            <p-sortIcon field="user.lastName"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="email" class="spaced-column centered-column">Email
-                            <p-sortIcon field="email"></p-sortIcon>
+                        <th pSortableColumn="phone" class="spaced-column centered-column">Phone
+                            <p-sortIcon field="phone"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="group" class="spaced-column centered-column">Group
-                            <p-sortIcon field="group"></p-sortIcon>
+                        <th pSortableColumn="studentGroup.name" class="spaced-column centered-column">Group
+                            <p-sortIcon field="studentGroup.name"></p-sortIcon>
                         </th>
 
                         <th class="actions-column centered-column">Actions</th>
@@ -92,7 +92,7 @@
                         </td>
 
                         <td class="spaced-column centered-column">
-                            <span class="p-column-title">Email</span>
+                            <span class="p-column-title">Phone</span>
                             {{ student.phone }}
                         </td>
 
@@ -139,17 +139,29 @@
                 </div>
 
                 <div class="field">
-                    <label for="email">Email</label>
-                    <input type="email" pInputText id="email" [(ngModel)]="student.user!.email" required
-                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.user?.email)}"/>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!student.user?.email)">Email is required.</small>
+                    <label for="email">Email (optional)</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="student.user!.email"
+                           placeholder="Optional"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !isEmailValid()}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !isEmailValid()">
+                        Please enter a valid email or leave empty.
+                    </small>
                 </div>
 
                 <div class="field">
-                    <label for="phone">Phone</label>
+                    <label for="phone">Phone (10 digits starting with 06 or 07)</label>
                     <input type="text" pInputText id="phone" [(ngModel)]="student.phone" required
-                           [ngClass]="{'ng-invalid ng-dirty': submitted && !student.phone}"/>
+                           maxlength="10"
+                           (input)="onPhoneInput($event)"
+                           placeholder="06XXXXXXXX or 07XXXXXXXX"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.phone || !isValidPhone(student.phone))}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !student.phone">Phone is required.</small>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && student.phone && !isValidPhone(student.phone)">
+                        Phone must be 10 digits and start with 06 or 07.
+                    </small>
+                    <small class="text-muted" *ngIf="student.phone && student.phone.length > 0 && !hasValidPhonePrefix(student.phone)">
+                        Phone number must start with 06 or 07
+                    </small>
                 </div>
 
                 <div class="field dropdown-field">
