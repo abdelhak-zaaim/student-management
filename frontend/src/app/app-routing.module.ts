@@ -6,6 +6,8 @@ import {AuthGuard} from "./guards/auth.guard";
 @NgModule({
     imports: [
         RouterModule.forRoot([
+
+
             {
                 path: '', component: AppLayoutComponent,
                 canActivate: [AuthGuard],
@@ -17,12 +19,16 @@ import {AuthGuard} from "./guards/auth.guard";
                         loadChildren: () => import('./components/student/student.module').then(m => m.StudentModule)
                     },
 
+                    {
+                        path: 'groups',
+                        loadChildren: () => import('./components/group/group.module').then(m => m.GroupModule)
+                    },
+
                 ],
             },
 
 
-            { path: 'auth', loadChildren: () => import('./components/auth/auth.module').then(m => m.AuthModule) },
-
+            {path: 'auth', loadChildren: () => import('./components/auth/auth.module').then(m => m.AuthModule)},
 
 
             {path: '**', redirectTo: 'pages/notfound'},

@@ -35,10 +35,12 @@ export class ListComponent implements OnInit {
         });
 
         this.cols = [
-            { field: 'user', header: 'User' },
-            { field: 'studentGroup', header: 'StudentGroup' },
+            { field: 'id', header: 'id' },
+            { field: 'phone', header: 'phone' },
+            { field: 'user.firstName', header: 'First Name' },
+            { field: 'user.lastName', header: 'Last Name' },
+            { field: 'studentGroup.name', header: 'Group' },
         ];
-
     }
 
 
