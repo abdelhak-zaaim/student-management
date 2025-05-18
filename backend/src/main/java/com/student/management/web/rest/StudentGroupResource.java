@@ -1,8 +1,10 @@
 package com.student.management.web.rest;
 
+import com.student.management.domain.Student;
 import com.student.management.domain.StudentGroup;
 import com.student.management.repository.StudentGroupRepository;
 import com.student.management.service.StudentGroupService;
+import com.student.management.service.StudentService;
 import com.student.management.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,9 +42,16 @@ public class StudentGroupResource {
 
     private final StudentGroupRepository studentGroupRepository;
 
-    public StudentGroupResource(StudentGroupService studentGroupService, StudentGroupRepository studentGroupRepository) {
+    private final StudentService studentService;
+    
+    public StudentGroupResource(
+        StudentGroupService studentGroupService, 
+        StudentGroupRepository studentGroupRepository,
+        StudentService studentService
+    ) {
         this.studentGroupService = studentGroupService;
         this.studentGroupRepository = studentGroupRepository;
+        this.studentService = studentService;
     }
 
     /**
@@ -169,6 +178,32 @@ public class StudentGroupResource {
         return ResponseUtil.wrapOrNotFound(studentGroup);
     }
 
+    /**
+     * {@code GET  /student-groups/:id/students} : get the students for the "id" studentGroup.
+     *
+     * @param id the id of the studentGroup to retrieve students for.
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the list of students.
+     */
+    @GetMapping("/{id}/students")
+    public ResponseEntity<List<Student>> getStudentGroupStudents(
+        @PathVariable("id") Long id,
+        @org.springdoc.core.annotations.ParameterObject Pageable pageable
+    ) {
+        LOG.debug("REST request to get students for StudentGroup : {}", id);
+        
+        if (!studentGroupRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Page<Student> page = studentService.findByStudentGroupId(id, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), 
+            page
+        );
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+    
     /**
      * {@code DELETE  /student-groups/:id} : delete the "id" studentGroup.
      *

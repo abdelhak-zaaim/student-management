@@ -37,4 +37,26 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("select student from Student student left join fetch student.user where student.id =:id")
     Optional<Student> findOneWithToOneRelationships(@Param("id") Long id);
+    
+    /**
+     * Find all students by student group ID.
+     * 
+     * @param studentGroupId the ID of the student group
+     * @return list of students in the group
+     */
+    @Query("select student from Student student left join fetch student.user where student.studentGroup.id = :studentGroupId")
+    List<Student> findByStudentGroupId(@Param("studentGroupId") Long studentGroupId);
+    
+    /**
+     * Find all students by student group ID with pagination.
+     *
+     * @param studentGroupId the ID of the student group
+     * @param pageable pagination information
+     * @return page of students in the group
+     */
+    @Query(
+        value = "select student from Student student left join fetch student.user where student.studentGroup.id = :studentGroupId",
+        countQuery = "select count(student) from Student student where student.studentGroup.id = :studentGroupId"
+    )
+    Page<Student> findByStudentGroupId(@Param("studentGroupId") Long studentGroupId, Pageable pageable);
 }

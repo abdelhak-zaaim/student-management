@@ -4,6 +4,8 @@ import com.student.management.domain.Student;
 import com.student.management.domain.User;
 import com.student.management.repository.StudentRepository;
 import com.student.management.repository.UserRepository;
+
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,6 +235,31 @@ public class StudentService {
     public Optional<Student> findOne(Long id) {
         LOG.debug("Request to get Student : {}", id);
         return studentRepository.findOneWithEagerRelationships(id);
+    }
+    
+    /**
+     * Get all students by student group ID.
+     *
+     * @param studentGroupId the ID of the student group
+     * @return the list of students in the group
+     */
+    @Transactional(readOnly = true)
+    public List<Student> findByStudentGroupId(Long studentGroupId) {
+        LOG.debug("Request to get Students by student group ID : {}", studentGroupId);
+        return studentRepository.findByStudentGroupId(studentGroupId);
+    }
+    
+    /**
+     * Get all students by student group ID with pagination.
+     *
+     * @param studentGroupId the ID of the student group
+     * @param pageable pagination information
+     * @return page of students in the group
+     */
+    @Transactional(readOnly = true)
+    public Page<Student> findByStudentGroupId(Long studentGroupId, Pageable pageable) {
+        LOG.debug("Request to get Students by student group ID with pagination : {}", studentGroupId);
+        return studentRepository.findByStudentGroupId(studentGroupId, pageable);
     }
 
     /**
