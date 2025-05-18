@@ -195,36 +195,128 @@ export class ListComponent implements OnInit {
     confirmDeleteSelected() {
         this.deleteGroupsDialog = false;
         if (this.selectedGroups && this.selectedGroups.length > 0) {
-            // Create a copy of the array to avoid modifying during iteration
-            const groupsToDelete = [...this.selectedGroups];
+            // Get all valid IDs
+            const groupIds = this.selectedGroups
+                .filter(group => group.id !== undefined)
+                .map(group => group.id as number);
+
+            if (groupIds.length === 0) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No valid groups to delete',
+                    life: 3000
+                });
+                return;
+            }
+
+            // Store IDs for local array filtering
+            const idsToDelete = new Set(groupIds);
 
             // Reset the selection
             this.selectedGroups = [];
 
-            // Delete each group
-            groupsToDelete.forEach(group => {
-                if (group.id) {
-                    this.groupService.delete(group.id).subscribe(
-                        () => {
-                            // Remove from the local array after successful deletion
-                            this.groups = this.groups?.filter(g => g.id !== group.id) || [];
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Groups Deleted',
-                                life: 3000
-                            });
-                        },
-                        error => {
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: 'Failed to delete groups',
-                                life: 3000
-                            });
-                        }
-                    );
-                }
+            // Use bulk delete if available, otherwise fall back to individual deletes
+            if (groupIds.length === 1) {
+                // Single group delete
+                this.groupService.delete(groupIds[0]).subscribe(
+                    () => {
+                        // Remove from the local array
+                        this.groups = this.groups?.filter(g => !idsToDelete.has(g.id as number)) || [];
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Successful',
+                            detail: 'Group Deleted',
+                            life: 3000
+                        });
+                    },
+                    error => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to delete group',
+                            life: 3000
+                        });
+                    }
+                );
+            } else {
+                // Multiple group delete
+                this.groupService.bulkDelete(groupIds).subscribe(
+                    () => {
+                        // Remove all deleted groups from the local array
+                        this.groups = this.groups?.filter(g => !idsToDelete.has(g.id as number)) || [];
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Successful',
+                            detail: `${groupIds.length} Groups Deleted`,
+                            life: 3000
+                        });
+                    },
+                    error => {
+                        // Fallback to individual deletes if bulk delete fails or isn't supported
+                        console.error('Bulk delete failed, falling back to individual deletes', error);
+                        let successCount = 0;
+                        let failureCount = 0;
+
+                        // Track completion of all delete operations
+                        const total = groupIds.length;
+                        let completed = 0;
+
+                        groupIds.forEach(id => {
+                            this.groupService.delete(id).subscribe(
+                                () => {
+                                    successCount++;
+                                    completed++;
+
+                                    if (completed === total) {
+                                        this.handleDeleteCompletion(successCount, failureCount);
+                                    }
+                                },
+                                () => {
+                                    failureCount++;
+                                    completed++;
+
+                                    if (completed === total) {
+                                        this.handleDeleteCompletion(successCount, failureCount);
+                                    }
+                                }
+                            );
+                        });
+                    }
+                );
+            }
+        }
+    }
+
+    /**
+     * Helper method to display appropriate message after multiple deletes
+     */
+    private handleDeleteCompletion(successCount: number, failureCount: number) {
+        // Update local array to remove deleted groups
+        this.groupService.findAll().subscribe(response => {
+            this.groups = response.body;
+        });
+
+        if (failureCount === 0) {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Successful',
+                detail: `${successCount} Groups Deleted`,
+                life: 3000
+            });
+        } else if (successCount === 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to delete groups',
+                life: 3000
+            });
+        } else {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Partial Success',
+                detail: `${successCount} Groups Deleted, ${failureCount} Failed`,
+                life: 5000
             });
         }
     }
@@ -369,4 +461,63 @@ export class ListComponent implements OnInit {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
+    /**
+     * Handle file import
+     */
+    onImportFile(event: any) {
+        const files = event.files;
+        if (files.length > 0) {
+            const file = files[0];
+
+            // Check if file is valid (CSV, Excel, etc.)
+            const validTypes = ['text/csv', 'application/vnd.ms-excel',
+                               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+            if (!validTypes.includes(file.type)) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Invalid file type. Please upload a CSV or Excel file.',
+                    life: 3000
+                });
+                return;
+            }
+
+            // Process the file
+            this.groupService.importGroups(file).subscribe(
+                response => {
+                    const importedGroups = response.body;
+                    if (importedGroups && importedGroups.length > 0) {
+                        // Refresh the group list
+                        this.groupService.findAll().subscribe(data => {
+                            this.groups = data.body;
+
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: `${importedGroups.length} Groups Imported Successfully`,
+                                life: 3000
+                            });
+                        });
+                    } else {
+                        this.messageService.add({
+                            severity: 'info',
+                            summary: 'Information',
+                            detail: 'No groups imported from the file',
+                            life: 3000
+                        });
+                    }
+                },
+                error => {
+                    console.error('Import error:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to import groups. Please check the file format.',
+                        life: 3000
+                    });
+                }
+            );
+        }
+    }
 }
