@@ -32,7 +32,7 @@ import {AuthGuard} from "./guards/auth.guard";
 
 
             {path: '**', redirectTo: 'pages/notfound'},
-        ], {scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled', onSameUrlNavigation: 'reload'})
+        ], {enableTracing: true,scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled', onSameUrlNavigation: 'reload'})
     ],
     exports: [RouterModule]
 })

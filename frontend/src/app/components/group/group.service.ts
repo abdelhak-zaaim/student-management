@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {Group} from "../../models/group.model";
+import {environment} from "../../../environments/environment";
 
 export type EntityResponseType = HttpResponse<Group>;
 export type EntityArrayResponseType = HttpResponse<Group[]>;
@@ -11,7 +12,7 @@ export type EntityArrayResponseType = HttpResponse<Group[]>;
 })
 export class GroupService {
     /** Base REST endpoint (adapt if your API path differs) */
-    private resourceUrl = '/api/groups';
+    private resourceUrl = environment.apiBaseUrl+'/student-groups';
 
     constructor(private http: HttpClient) {}
 
