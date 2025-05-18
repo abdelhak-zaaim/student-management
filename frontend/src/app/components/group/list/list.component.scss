@@ -29,4 +29,24 @@
       }
     }
   }
+
+  // Form dialog styling
+  .p-dialog {
+    .p-dialog-content {
+      .field {
+        margin-bottom: 1.5rem;
+
+        label {
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+
+        textarea {
+          min-height: 100px;
+          resize: vertical;
+        }
+      }
+    }
+  }
 }
