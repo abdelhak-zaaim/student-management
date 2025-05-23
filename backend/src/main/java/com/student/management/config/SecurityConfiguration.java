@@ -60,6 +60,7 @@ public class SecurityConfiguration {
                                         mvc.pattern("/api/student-groups/**"), mvc.pattern("/api/subjects/**")).hasAnyAuthority(AuthoritiesConstants.PROFESSOR,AuthoritiesConstants.ADMIN)
                                 .requestMatchers(mvc.pattern("/api/**")).authenticated()
                                 .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+                                .requestMatchers(mvc.pattern("/api/course-assignments/**")).hasAnyAuthority(AuthoritiesConstants.PROFESSOR,AuthoritiesConstants.ADMIN)
                                 .requestMatchers(mvc.pattern("/management/health")).permitAll()
                                 .requestMatchers(mvc.pattern("/management/health/**")).permitAll()
                                 .requestMatchers(mvc.pattern("/management/info")).permitAll()
