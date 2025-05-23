@@ -179,7 +179,7 @@ export class ListComponent implements OnInit {
 
   isEmailValid(): boolean {
     if (!this.professor.user?.email || this.professor.user.email.trim() === '') {
-      return true; // Empty email is allowed (optional)
+      return false;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -214,6 +214,15 @@ export class ListComponent implements OnInit {
       return;
     }
 
+
+    if (!this.professor.user?.email || this.professor.user.email.trim() === '') {
+      return; // Optional field, so we can skip validation
+    }
+
+      if (this.subjectGroupRecords.some(record => !record.subject || record.groups.length === 0)) {
+          return;
+      }
+
     const professorToSave: Professor = {
       id: this.professor.id,
 
@@ -222,7 +231,11 @@ export class ListComponent implements OnInit {
         firstName: this.professor.user.firstName,
         lastName: this.professor.user.lastName,
         email: this.professor.user.email
-      }
+      },
+        subjectGroups: this.subjectGroupRecords.map(record => ({
+            subject: record.subject || null,
+            groups: record.groups || []
+        }))
     };
 
     if (professorToSave.id) {
@@ -299,4 +312,35 @@ export class ListComponent implements OnInit {
   onGlobalFilter(table: Table, event: Event): void {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
+
+
+
+    subjectGroupRecords: { subject: any; groups: any[] }[] = [];
+
+    addSubjectGroupRecord(): void {
+        this.subjectGroupRecords.push({ subject: null, groups: [] });
+    }
+
+    removeSubjectGroupRecord(index: number): void {
+        this.subjectGroupRecords.splice(index, 1);
+    }
+
+    // saveProfessor(): void {
+    //     this.submitted = true;
+    //
+    //     if (this.subjectGroupRecords.some(record => !record.subject || record.groups.length === 0)) {
+    //         return; // Validation: Ensure all records have a subject and at least one group
+    //     }
+    //
+    //     const professorToSave = {
+    //         ...this.professor,
+    //         subjectGroups: this.subjectGroupRecords.map(record => ({
+    //             subject: record.subject,
+    //             groups: record.groups
+    //         }))
+    //     };
+    //
+    //     console.log('Saving professor:', professorToSave);
+    //     // Add your save logic here
+    // }
 }
