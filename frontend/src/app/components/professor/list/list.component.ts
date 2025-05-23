@@ -23,6 +23,18 @@ export class ListComponent implements OnInit {
   deleteProfessorsDialog = false;
   submitted = false;
   cols: any[] = [];
+    groupOptions = [
+        { id: 1, name: 'Group A' },
+        { id: 2, name: 'Group B' },
+        { id: 3, name: 'Group C' }
+    ];
+
+    subjectOptions = [
+        { id: 1, name: 'Mathematics' },
+        { id: 2, name: 'Physics' },
+        { id: 3, name: 'Chemistry' }
+    ];
+
 
   constructor(
     private professorService: ProfessorService,

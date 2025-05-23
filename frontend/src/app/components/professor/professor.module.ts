@@ -16,6 +16,7 @@ import {ToastModule} from "primeng/toast";
 import {ToolbarModule} from "primeng/toolbar";
 import { MessageService } from 'primeng/api';
 import {ProfessorRoutingModule} from "./professor-routing.module";
+import {MultiSelectModule} from "primeng/multiselect";
 
 
 
@@ -35,7 +36,8 @@ import {ProfessorRoutingModule} from "./professor-routing.module";
         ToastModule,
         ToolbarModule,
         FormsModule,
-        ProfessorRoutingModule
+        ProfessorRoutingModule,
+        MultiSelectModule
     ],
     providers: [MessageService]
 })

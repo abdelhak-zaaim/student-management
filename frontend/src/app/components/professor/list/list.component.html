@@ -45,7 +45,6 @@
                     <col style="width:15%">           <!-- Last Name -->
                     <col style="width:20%">           <!-- Email -->
                     <col style="width:20%">           <!-- Group -->
-                    <col style="width:20%">           <!-- Actions -->
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
@@ -95,7 +94,7 @@
 
 
                         <td class="actions-column">
-                            <div class="flex justify-content-center">
+                            <div class="">
                                 <button pButton pRipple icon="pi pi-pencil"
                                         class="p-button-rounded p-button-success mr-2"
                                         (click)="editProfessor(professor)"></button>
@@ -112,7 +111,7 @@
         <p-dialog [(visible)]="professorDialog"
                   [style]="{width: '500px'}"
                   [contentStyle]="{overflow: 'visible'}"
-                  header="professor Details"
+                  header="Professor Details"
                   [modal]="true"
                   [baseZIndex]="1000"
                   styleClass="p-fluid professor-dialog">
@@ -141,40 +140,25 @@
                     </small>
                 </div>
 
-<!--                <div class="field">-->
-<!--                    <label for="phone">Phone (10 digits starting with 06 or 07)</label>-->
-<!--                    <input type="text" pInputText id="phone" [(ngModel)]="professor.user?.email" required-->
-<!--                           maxlength="10"-->
-<!--                           (input)="onPhoneInput($event)"-->
-<!--                           placeholder="06XXXXXXXX or 07XXXXXXXX"-->
-<!--                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!professor.user?.email || !isValidPhone(professor.user?.email))}"/>-->
-<!--                    -->
-<!--                    <small class="text-muted" *ngIf="professor.user?.email && !hasValidPhonePrefix(professor.user?.email)">-->
-<!--                        Phone number must start with 06 or 07-->
-<!--                    </small>-->
-<!--                </div>-->
+                <div class="field">
+                    <label for="groups">Groups</label>
+                    <p-multiSelect id="groups" [options]="groupOptions" [(ngModel)]="professor.subjects"
+                                   optionLabel="name" placeholder="Select Groups" [showClear]="true">
+                    </p-multiSelect>
+                    <small class="p-error" *ngIf="submitted && (!professor.subjects || professor.subjects.length === 0)">
+                        At least one group must be selected.
+                    </small>
+                </div>
 
-<!--                <div class="field dropdown-field">-->
-<!--                    <label for="professorGroup">professor Group</label>-->
-<!--                    <p-dropdown id="professorGroup" name="professorGroup"-->
-<!--                                [options]="professorGroups"-->
-<!--                                [(ngModel)]="professor.professorGroup"-->
-<!--                                optionLabel="name"-->
-<!--                                dataKey="id"-->
-<!--                                [appendTo]="'body'"-->
-<!--                                [style]="{width: '100%'}"-->
-<!--                                placeholder="Select a Group"-->
-<!--                                [showClear]="true">-->
-<!--                    </p-dropdown>-->
-<!--                    <div *ngIf="professorGroups.length === 0" class="p-error mt-1">-->
-<!--                        No groups available. Please create a group first.-->
-<!--                    </div>-->
-<!--                </div>-->
-            </ng-template>
-
-            <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProfessor()"></button>
+                <div class="field">
+                    <label for="subjects">Subjects</label>
+                    <p-multiSelect id="subjects" [options]="subjectOptions" [(ngModel)]="professor.subjects"
+                                   optionLabel="name" placeholder="Select Subjects" [showClear]="true">
+                    </p-multiSelect>
+                    <small class="p-error" *ngIf="submitted && (!professor.subjects || professor.subjects.length === 0)">
+                        At least one subject must be selected.
+                    </small>
+                </div>
             </ng-template>
 
             <ng-template pTemplate="footer">
