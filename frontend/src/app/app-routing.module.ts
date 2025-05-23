@@ -28,6 +28,11 @@ import {AuthGuard} from "./guards/auth.guard";
                         loadChildren: () => import('./components/professor/professor.module').then(m => m.ProfessorModule)
                     },
 
+                    {
+                        path: 'payments',
+                        loadChildren: () => import('./components/payment/payment.module').then(m => m.PaymentModule)
+                    },
+
 
                 ],
             },
