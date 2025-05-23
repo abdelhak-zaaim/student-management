@@ -1,1 +1,211 @@
-<p>list works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                                (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
+                                (click)="deleteSelectedProfessors()"
+                                [disabled]="!selectedProfessors || !selectedProfessors.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import"
+                                  chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                            (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="professors!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                     [globalFilterFields]="['user.firstName','user.lastName','phone']"
+                     [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     [(selection)]="selectedProfessors" selectionMode="multiple" [rowHover]="true" dataKey="id"
+                     tableStyleClass="equilibrated">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Professors</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                   class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <!-- Define column groups for balanced width -->
+                <ng-template pTemplate="colgroup">
+                    <col style="width:3rem">          <!-- checkbox column -->
+                    <col style="width:10%">           <!-- Id -->
+                    <col style="width:15%">           <!-- First Name -->
+                    <col style="width:15%">           <!-- Last Name -->
+                    <col style="width:20%">           <!-- Email -->
+                    <col style="width:20%">           <!-- Group -->
+                    <col style="width:20%">           <!-- Actions -->
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="id" class="spaced-column centered-column">Id
+                            <p-sortIcon field="id"></p-sortIcon>
+                        </th>
+
+                        <th pSortableColumn="user.firstName" class="spaced-column centered-column">First Name
+                            <p-sortIcon field="user.firstName"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="user.lastName" class="spaced-column centered-column">Last Name
+                            <p-sortIcon field="user.lastName"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="phone" class="spaced-column centered-column">Email
+                            <p-sortIcon field="phone"></p-sortIcon>
+                        </th>
+
+                        <th class="actions-column centered-column">Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-professor>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="professor"></p-tableCheckbox>
+                        </td>
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Id</span>
+                            {{ professor.id }}
+                        </td>
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">First Name</span>
+                            {{ professor.user?.firstName }}
+                        </td>
+
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Last Name</span>
+                            {{ professor.user?.lastName }}
+                        </td>
+
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Email</span>
+                            {{ professor.user.email }}
+                        </td>
+
+
+                        <td class="actions-column">
+                            <div class="flex justify-content-center">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-success mr-2"
+                                        (click)="editProfessor(professor)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                        (click)="deleteProfessor(professor)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Create/Edit professor Dialog -->
+        <p-dialog [(visible)]="professorDialog"
+                  [style]="{width: '500px'}"
+                  [contentStyle]="{overflow: 'visible'}"
+                  header="professor Details"
+                  [modal]="true"
+                  [baseZIndex]="1000"
+                  styleClass="p-fluid professor-dialog">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="firstName">First Name</label>
+                    <input type="text" pInputText id="firstName" [(ngModel)]="professor.user!.firstName" required autofocus
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!professor.user?.firstName)}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!professor.user?.firstName)">First Name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" pInputText id="lastName" [(ngModel)]="professor.user!.lastName" required
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!professor.user?.lastName)}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && (!professor.user?.lastName)">Last Name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email (optional)</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="professor.user!.email"
+                           placeholder="Optional"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !isEmailValid()}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !isEmailValid()">
+                        Please enter a valid email or leave empty.
+                    </small>
+                </div>
+
+<!--                <div class="field">-->
+<!--                    <label for="phone">Phone (10 digits starting with 06 or 07)</label>-->
+<!--                    <input type="text" pInputText id="phone" [(ngModel)]="professor.user?.email" required-->
+<!--                           maxlength="10"-->
+<!--                           (input)="onPhoneInput($event)"-->
+<!--                           placeholder="06XXXXXXXX or 07XXXXXXXX"-->
+<!--                           [ngClass]="{'ng-invalid ng-dirty': submitted && (!professor.user?.email || !isValidPhone(professor.user?.email))}"/>-->
+<!--                    -->
+<!--                    <small class="text-muted" *ngIf="professor.user?.email && !hasValidPhonePrefix(professor.user?.email)">-->
+<!--                        Phone number must start with 06 or 07-->
+<!--                    </small>-->
+<!--                </div>-->
+
+<!--                <div class="field dropdown-field">-->
+<!--                    <label for="professorGroup">professor Group</label>-->
+<!--                    <p-dropdown id="professorGroup" name="professorGroup"-->
+<!--                                [options]="professorGroups"-->
+<!--                                [(ngModel)]="professor.professorGroup"-->
+<!--                                optionLabel="name"-->
+<!--                                dataKey="id"-->
+<!--                                [appendTo]="'body'"-->
+<!--                                [style]="{width: '100%'}"-->
+<!--                                placeholder="Select a Group"-->
+<!--                                [showClear]="true">-->
+<!--                    </p-dropdown>-->
+<!--                    <div *ngIf="professorGroups.length === 0" class="p-error mt-1">-->
+<!--                        No groups available. Please create a group first.-->
+<!--                    </div>-->
+<!--                </div>-->
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProfessor()"></button>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProfessor()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Professor Dialog -->
+        <p-dialog [(visible)]="deleteProfessorDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="professor">Are you sure you want to delete <b>{{professor.user?.firstName}} {{professor.user?.lastName}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProfessorDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Multiple Professors Dialog -->
+        <p-dialog [(visible)]="deleteProfessorsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete the selected professors?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProfessorsDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+

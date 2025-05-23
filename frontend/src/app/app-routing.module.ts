@@ -23,6 +23,11 @@ import {AuthGuard} from "./guards/auth.guard";
                         path: 'groups',
                         loadChildren: () => import('./components/group/group.module').then(m => m.GroupModule)
                     },
+                    {
+                        path: 'profs',
+                        loadChildren: () => import('./components/professor/professor.module').then(m => m.ProfessorModule)
+                    },
+
 
                 ],
             },
