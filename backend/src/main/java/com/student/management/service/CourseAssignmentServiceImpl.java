@@ -3,10 +3,12 @@ package com.student.management.service;
 
 import com.student.management.domain.CourseAssignment;
 import com.student.management.repository.CourseAssignmentRepository;
+import com.student.management.security.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +28,14 @@ public class CourseAssignmentServiceImpl implements CourseAssignmentService {
     }
 
     @Override
+    @Secured({AuthoritiesConstants.ADMIN})
     public CourseAssignment save(CourseAssignment courseAssignment) {
         log.debug("Request to save CourseAssignment : {}", courseAssignment);
         return courseAssignmentRepository.save(courseAssignment);
     }
 
     @Override
+    @Secured({AuthoritiesConstants.ADMIN})
     public Optional<CourseAssignment> partialUpdate(CourseAssignment courseAssignment) {
         log.debug("Request to partially update CourseAssignment : {}", courseAssignment);
 
