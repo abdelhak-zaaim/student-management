@@ -35,12 +35,21 @@ public class ProfessorService {
      * @param professor the entity to save.
      * @return the persisted entity.
      */
-    public Professor save(Professor professor) {
-        LOG.debug("Request to save Professor : {}", professor);
+public Professor save(Professor professor) {
+    LOG.debug("Request to save Professor : {}", professor);
+    if (professor.getUser() != null && professor.getUser().getId() == null) {
+        // Create and save the new user
+
+        String tempLogin = "professor" + System.currentTimeMillis();
+        professor.getUser().setLogin(tempLogin);
+        professor.setUser(userRepository.save(professor.getUser()));
+    } else if (professor.getUser() != null) {
+        // Load existing user if present
         Long userId = professor.getUser().getId();
-        userRepository.findById(userId).ifPresent(professor::user);
-        return professorRepository.save(professor);
+        userRepository.findById(userId).ifPresent(professor::setUser);
     }
+    return professorRepository.save(professor);
+}
 
     /**
      * Update a professor.
