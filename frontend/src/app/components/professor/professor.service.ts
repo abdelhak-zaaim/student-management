@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {Professor} from "../../models/professor.model";
+import {environment} from "../../../environments/environment";
 
 export type EntityResponseType = HttpResponse<Professor>;
 export type EntityArrayResponseType = HttpResponse<Professor[]>;
@@ -14,7 +15,8 @@ export class ProfessorService {
      * Change this path if the backend endpoint differs,
      * or pull it from an `environment` file.
      */
-    private resourceUrl = '/api/professors';
+    private resourceUrl = environment.apiBaseUrl+'/professors';
+
 
     constructor(private http: HttpClient) {}
 
