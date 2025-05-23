@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="email">Email (optional)</label>
+                    <label for="email">Email</label>
                     <input type="email" pInputText id="email" [(ngModel)]="professor.user!.email"
                            placeholder="Optional"
                            [ngClass]="{'ng-invalid ng-dirty': submitted && !isEmailValid()}"/>
@@ -141,23 +141,27 @@
                 </div>
 
                 <div class="field">
-                    <label for="groups">Groups</label>
-                    <p-multiSelect id="groups" [options]="groupOptions" [(ngModel)]="professor.subjects"
-                                   optionLabel="name" placeholder="Select Groups" [showClear]="true">
-                    </p-multiSelect>
-                    <small class="p-error" *ngIf="submitted && (!professor.subjects || professor.subjects.length === 0)">
-                        At least one group must be selected.
-                    </small>
-                </div>
-
-                <div class="field">
-                    <label for="subjects">Subjects</label>
-                    <p-multiSelect id="subjects" [options]="subjectOptions" [(ngModel)]="professor.subjects"
-                                   optionLabel="name" placeholder="Select Subjects" [showClear]="true">
-                    </p-multiSelect>
-                    <small class="p-error" *ngIf="submitted && (!professor.subjects || professor.subjects.length === 0)">
-                        At least one subject must be selected.
-                    </small>
+                    <label>Subjects and Groups</label>
+                    <div *ngFor="let record of subjectGroupRecords; let i = index" class="subject-group-record">
+                        <div class="p-fluid grid">
+                            <div class="col-6">
+                                <label for="subject-{{i}}">Subject</label>
+                                <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="record.subject"
+                                            optionLabel="name" placeholder="Select Subject" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="col-6">
+                                <label for="groups-{{i}}">Groups</label>
+                                <p-multiSelect id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="record.groups"
+                                               optionLabel="name" placeholder="Select Groups" [showClear]="true">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-text p-button-danger mt-2"
+                                (click)="removeSubjectGroupRecord(i)" label="Remove"></button>
+                    </div>
+                    <button pButton pRipple icon="pi pi-plus" class="p-button-text p-button-success mt-3"
+                            (click)="addSubjectGroupRecord()" label="Add"></button>
                 </div>
             </ng-template>
 
