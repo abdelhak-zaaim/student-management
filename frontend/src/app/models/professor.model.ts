@@ -7,5 +7,5 @@ export interface Professor {
     id?: number;
     user?: User | null;
     subjects?: Subject[] | null;
-    subjectGroups?: { subject: any; groups: any[] }[];
+    subjectGroups?: { subject: any; studentGroup: any[] }[];
 }

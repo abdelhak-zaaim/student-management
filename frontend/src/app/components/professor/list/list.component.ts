@@ -219,7 +219,7 @@ export class ListComponent implements OnInit {
       return; // Optional field, so we can skip validation
     }
 
-      if (this.subjectGroupRecords.some(record => !record.subject || record.groups.length === 0)) {
+      if (this.subjectGroupRecords.some(record => !record.subject || record.studentGroup.length === 0)) {
           return;
       }
 
@@ -234,7 +234,7 @@ export class ListComponent implements OnInit {
       },
         subjectGroups: this.subjectGroupRecords.map(record => ({
             subject: record.subject || null,
-            groups: record.groups || []
+            studentGroup: record.studentGroup || []
         }))
     };
 
@@ -315,32 +315,13 @@ export class ListComponent implements OnInit {
 
 
 
-    subjectGroupRecords: { subject: any; groups: any[] }[] = [];
+    subjectGroupRecords: { subject: any; studentGroup: any[] }[] = [];
 
     addSubjectGroupRecord(): void {
-        this.subjectGroupRecords.push({ subject: null, groups: [] });
+        this.subjectGroupRecords.push({ subject: null, studentGroup: [] });
     }
 
     removeSubjectGroupRecord(index: number): void {
         this.subjectGroupRecords.splice(index, 1);
     }
-
-    // saveProfessor(): void {
-    //     this.submitted = true;
-    //
-    //     if (this.subjectGroupRecords.some(record => !record.subject || record.groups.length === 0)) {
-    //         return; // Validation: Ensure all records have a subject and at least one group
-    //     }
-    //
-    //     const professorToSave = {
-    //         ...this.professor,
-    //         subjectGroups: this.subjectGroupRecords.map(record => ({
-    //             subject: record.subject,
-    //             groups: record.groups
-    //         }))
-    //     };
-    //
-    //     console.log('Saving professor:', professorToSave);
-    //     // Add your save logic here
-    // }
 }
