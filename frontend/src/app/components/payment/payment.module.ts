@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListComponent } from './list/list.component';
+import { MakePaymentComponent } from './make-payment/make-payment.component';
 import { PaymentRoutingModule } from './payment-routing.module';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -18,7 +19,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
 
 @NgModule({
-  declarations: [ListComponent],
+  declarations: [ListComponent, MakePaymentComponent],
   imports: [
     CommonModule,
     FormsModule,

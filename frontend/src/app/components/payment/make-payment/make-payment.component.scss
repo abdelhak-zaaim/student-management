@@ -1,0 +1,29 @@
+:host ::ng-deep {
+    .p-inputtext.ng-dirty.ng-invalid,
+    .p-dropdown.ng-dirty.ng-invalid > .p-dropdown-label,
+    .p-calendar.ng-dirty.ng-invalid > .p-inputtext {
+        border-color: #f44336;
+    }
+
+    .p-inputnumber.ng-dirty.ng-invalid > .p-inputtext {
+        border-color: #f44336;
+    }
+
+    .p-button-loading-icon {
+        font-size: 1rem;
+    }
+
+    .card {
+        padding: 2rem;
+    }
+
+    .field {
+        margin-bottom: 1.5rem;
+    }
+
+    @media screen and (max-width: 767px) {
+        .card {
+            padding: 1rem;
+        }
+    }
+}

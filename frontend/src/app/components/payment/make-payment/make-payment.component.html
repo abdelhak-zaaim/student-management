@@ -1,0 +1,62 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Make a Payment</h5>
+            <p>Create a new payment for a student.</p>
+
+            <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="student" class="font-bold">Student*</label>
+                    <p-dropdown id="student" [options]="students" [(ngModel)]="payment.student"
+                              optionLabel="displayName" dataKey="id"
+                              [filter]="true" filterBy="displayName"
+                              [showClear]="true"
+                              placeholder="Select a Student"
+                              [disabled]="loading"
+                              [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.student}"></p-dropdown>
+                    <small class="p-error" *ngIf="submitted && !payment.student">Student is required.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="amount" class="font-bold">Amount*</label>
+                    <p-inputNumber id="amount" [(ngModel)]="payment.amount"
+                                 mode="currency" currency="USD" locale="en-US"
+                                 [min]="0" [maxFractionDigits]="2"
+                                 [disabled]="loading"
+                                 [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.amount}"></p-inputNumber>
+                    <small class="p-error" *ngIf="submitted && !payment.amount">Amount is required.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="status" class="font-bold">Status*</label>
+                    <p-dropdown id="status" [options]="statuses" [(ngModel)]="payment.status"
+                              optionLabel="label" optionValue="value"
+                              placeholder="Select a Status" [showClear]="false"
+                              [disabled]="loading"
+                              [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.status}"></p-dropdown>
+                    <small class="p-error" *ngIf="submitted && !payment.status">Status is required.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="date" class="font-bold">Payment Date*</label>
+                    <p-calendar id="date" [(ngModel)]="payment.date" dateFormat="yy-mm-dd"
+                              [showTime]="true" [showButtonBar]="true"
+                              [readonlyInput]="false" [showIcon]="true"
+                              [disabled]="loading"
+                              [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.date}"></p-calendar>
+                    <small class="p-error" *ngIf="submitted && !payment.date">Date is required.</small>
+                </div>
+
+                <div class="field col-12">
+                    <div class="flex justify-content-end">
+                        <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text mr-2" (onClick)="cancel()" [disabled]="loading"></p-button>
+                        <p-button label="Reset" icon="pi pi-refresh" styleClass="p-button-secondary mr-2" (onClick)="resetForm()" [disabled]="loading"></p-button>
+                        <p-button label="Make Payment" icon="pi pi-check" (onClick)="makePayment()" [loading]="loading"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
