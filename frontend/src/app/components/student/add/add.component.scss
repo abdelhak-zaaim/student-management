@@ -1,0 +1,26 @@
+:host ::ng-deep {
+    .card {
+        padding: 2rem;
+
+        h6 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+    }
+
+    .p-inputtext.ng-dirty.ng-invalid,
+    .p-dropdown.ng-dirty.ng-invalid > .p-dropdown-label {
+        border-color: #f44336;
+    }
+
+    .field {
+        margin-bottom: 1.5rem;
+    }
+
+    @media screen and (max-width: 767px) {
+        .card {
+            padding: 1.25rem;
+        }
+    }
+}

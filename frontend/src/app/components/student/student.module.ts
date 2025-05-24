@@ -4,6 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {ListComponent} from "./list/list.component";
 import {UpdateComponent} from "./update/update.component";
 import {StudentComponent} from "./student.component";
+import {AddComponent} from "./add/add.component";
 import {ToastModule} from "primeng/toast";
 import {ToolbarModule} from "primeng/toolbar";
 import {FileUploadModule} from "primeng/fileupload";
@@ -23,7 +24,7 @@ import {ButtonModule} from "primeng/button";
 
 
 @NgModule({
-    declarations: [ListComponent, UpdateComponent, StudentComponent],
+    declarations: [ListComponent, UpdateComponent, StudentComponent, AddComponent],
     imports: [
         CommonModule,
         FormsModule,

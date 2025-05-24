@@ -1,0 +1,107 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Add New Student</h5>
+            <p>Create a new student account with basic information and group assignment.</p>
+
+            <div class="p-fluid formgrid grid">
+                <!-- Basic Information Section -->
+                <div class="col-12">
+                    <div class="card mb-0 p-0">
+                        <h6>Student Information</h6>
+
+                        <div class="formgrid grid mb-4">
+                            <!-- First Name -->
+                            <div class="field col-12 md:col-6">
+                                <label for="firstName" class="font-bold">First Name*</label>
+                                <input type="text" pInputText id="firstName" [(ngModel)]="student.user!.firstName"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !student.user?.firstName?.trim()}"/>
+                                <small class="p-error" *ngIf="submitted && !student.user?.firstName?.trim()">First name is required.</small>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="field col-12 md:col-6">
+                                <label for="lastName" class="font-bold">Last Name*</label>
+                                <input type="text" pInputText id="lastName" [(ngModel)]="student.user!.lastName"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !student.user?.lastName?.trim()}"/>
+                                <small class="p-error" *ngIf="submitted && !student.user?.lastName?.trim()">Last name is required.</small>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="field col-12 md:col-6">
+                                <label for="phone" class="font-bold">Phone* (10 digits starting with 06 or 07)</label>
+                                <input type="text" pInputText id="phone" [(ngModel)]="student.phone"
+                                       maxlength="10"
+                                       (input)="onPhoneInput($event)"
+                                       placeholder="06XXXXXXXX or 07XXXXXXXX"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && (!student.phone || !isValidPhone(student.phone))}"/>
+                                <small class="p-error" *ngIf="submitted && !student.phone">Phone number is required.</small>
+                                <small class="p-error" *ngIf="submitted && student.phone && !isValidPhone(student.phone)">
+                                    Phone must be 10 digits and start with 06 or 07.
+                                </small>
+                                <small class="text-muted" *ngIf="student.phone && student.phone.length > 0 && !hasValidPhonePrefix(student.phone)">
+                                    Phone number must start with 06 or 07
+                                </small>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="field col-12 md:col-6">
+                                <label for="email" class="font-bold">Email</label>
+                                <input type="email" pInputText id="email" [(ngModel)]="student.user!.email"
+                                       placeholder="Optional"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && student.user?.email && !isEmailValid()}"/>
+                                <small class="p-error" *ngIf="submitted && student.user?.email && !isEmailValid()">
+                                    Please enter a valid email address.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group Assignment Section -->
+                <div class="col-12 mt-4">
+                    <div class="card mb-0 p-0">
+                        <h6>Group Assignment</h6>
+                        <p>Assign the student to a specific group.</p>
+
+                        <div class="field dropdown-field">
+                            <label for="studentGroup" class="font-bold">Student Group</label>
+                            <p-dropdown id="studentGroup" name="studentGroup"
+                                        [options]="studentGroups"
+                                        [(ngModel)]="student.studentGroup"
+                                        optionLabel="name"
+                                        dataKey="id"
+                                        [disabled]="loading"
+                                        [filter]="true"
+                                        filterBy="name"
+                                        [showClear]="true"
+                                        placeholder="Select a Group">
+                            </p-dropdown>
+                            <div *ngIf="studentGroups.length === 0" class="p-error mt-1">
+                                No groups available. Please create a group first.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="field col-12 mt-4">
+                    <div class="flex justify-content-end">
+                        <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text mr-2"
+                                 (onClick)="cancel()" [disabled]="loading"></p-button>
+                        <p-button label="Reset" icon="pi pi-refresh" styleClass="p-button-secondary mr-2"
+                                 (onClick)="resetForm()" [disabled]="loading"></p-button>
+                        <p-button label="Create Student" icon="pi pi-check"
+                                 (onClick)="createStudent()" [loading]="loading"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
