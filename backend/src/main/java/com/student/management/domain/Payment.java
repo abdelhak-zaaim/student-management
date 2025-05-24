@@ -31,8 +31,8 @@ public class Payment implements Serializable {
     @Column(name = "date")
     private Instant date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "user", "payments", "studentGroup" }, allowSetters = true)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "payments", "studentGroup" }, allowSetters = true)
     private Student student;
 
     
