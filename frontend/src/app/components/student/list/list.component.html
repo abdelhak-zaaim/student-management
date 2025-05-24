@@ -106,6 +106,11 @@
                                 <button pButton pRipple icon="pi pi-pencil"
                                         class="p-button-rounded p-button-success mr-2"
                                         (click)="editStudent(student)"></button>
+                                <button pButton pRipple icon="pi pi-dollar"
+                                        class="p-button-rounded p-button-info mr-2"
+                                        pTooltip="View Payments"
+                                        tooltipPosition="top"
+                                        (click)="viewStudentPayments(student)"></button>
                                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
                                         (click)="deleteStudent(student)"></button>
                             </div>
@@ -180,11 +185,6 @@
                         No groups available. Please create a group first.
                     </div>
                 </div>
-                            </ng-template>
-
-                            <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveStudent()"></button>
             </ng-template>
 
             <ng-template pTemplate="footer">
@@ -216,6 +216,72 @@
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
             </ng-template>
         </p-dialog>
+
+        <!-- Student Payments Dialog -->
+        <p-dialog [(visible)]="studentPaymentsDialog"
+                 [header]="currentStudent?.user ? 'Payments for ' + currentStudent?.user?.firstName + ' ' + currentStudent?.user?.lastName : 'Student Payments'"
+                 [modal]="true"
+                 [style]="{width:'900px'}"
+                 [maximizable]="true"
+                 styleClass="p-fluid">
+            <div *ngIf="loadingPayments" class="flex justify-content-center">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+
+            <div *ngIf="!loadingPayments && studentPayments && studentPayments.length === 0" class="flex flex-column align-items-center p-4">
+                <i class="pi pi-info-circle text-5xl mb-3 text-primary"></i>
+                <h5>No Payments Found</h5>
+                <p>This student has no payment records.</p>
+                <button pButton pRipple label="Make a Payment" icon="pi pi-plus"
+                        class="p-button-success mt-3"
+                        (click)="createPaymentForStudent()"></button>
+            </div>
+
+            <p-table #paymentTable [value]="studentPayments!"
+                    [paginator]="true"
+                    [rows]="5"
+                    [rowsPerPageOptions]="[5,10,25]"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} payments"
+                    *ngIf="!loadingPayments && studentPayments && studentPayments.length > 0">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+                        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-payment>
+                    <tr>
+                        <td>{{payment.id}}</td>
+                        <td>{{payment.amount | currency:'USD':'symbol':'1.2-2'}}</td>
+                        <td>
+                            <span [class]="'payment-badge status-' + payment.status?.toLowerCase()">{{ payment.status }}</span>
+                        </td>
+                        <td>{{payment.date | date:'medium'}}</td>
+                        <td>
+                            <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editPayment(payment)"></button>
+                            <button pButton pRipple icon="pi pi-eye"
+                                    class="p-button-rounded p-button-info mr-2"
+                                    (click)="viewPaymentDetails(payment)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <div class="flex flex-wrap justify-content-between align-items-center">
+                        <div>Total: {{studentPayments.length}} payments</div>
+                        <button pButton pRipple label="Make New Payment" icon="pi pi-plus" class="p-button-success" (click)="createPaymentForStudent()"></button>
+                    </div>
+                </ng-template>
+            </p-table>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="studentPaymentsDialog = false"></button>
+            </ng-template>
+        </p-dialog>
     </div>
 </div>
-

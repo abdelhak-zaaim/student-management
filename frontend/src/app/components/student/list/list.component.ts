@@ -7,6 +7,8 @@ import {GroupService} from "../../group/group.service";
 import {Group} from "../../../models/group.model";
 import {HttpClient, HttpErrorResponse, HttpResponse} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
+import {Payment} from "../../../models/payment.model";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'app-list',
@@ -19,6 +21,12 @@ export class ListComponent implements OnInit {
     student: Student = { user: { firstName: '', lastName: '', email: '' } };
     selectedStudents: Student[] = [];
     submitted: boolean = false;
+
+    // New properties for student payments
+    studentPaymentsDialog: boolean = false;
+    loadingPayments: boolean = false;
+    studentPayments: Payment[] = [];
+    currentStudent: Student | null = null;
 
     cols: any[] = [];
     statuses: any[] = [];
@@ -36,7 +44,8 @@ export class ListComponent implements OnInit {
         private studentService: StudentService,
         private groupService: GroupService,
         private messageService: MessageService,
-        private http: HttpClient // Direct http client
+        private http: HttpClient, // Direct http client
+        private router: Router // Added router for navigation
     ) {
         // Make sure we're using student-groups endpoint
         // This is a hacky way to fix it for debugging - in real app update the service
@@ -687,6 +696,94 @@ export class ListComponent implements OnInit {
                     });
                 }
             );
+        }
+    }
+
+    /**
+     * Open the payment history dialog for a specific student
+     */
+    viewStudentPayments(student: Student): void {
+        this.currentStudent = student;
+        this.studentPayments = []; // Reset payments array
+        this.studentPaymentsDialog = true;
+        this.loadingPayments = true;
+
+        if (student && student.id) {
+            this.fetchStudentPayments(student.id);
+        } else {
+            this.loadingPayments = false;
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Student ID is missing',
+                life: 3000
+            });
+        }
+    }
+
+    /**
+     * Fetch payments for a specific student
+     */
+    fetchStudentPayments(studentId: number): void {
+        const url = `${environment.apiBaseUrl}/payments/student/${studentId}`;
+        console.log(`Fetching payments for student ID ${studentId} from: ${url}`);
+
+        this.http.get<Payment[]>(url, { observe: 'response' })
+            .subscribe(
+                response => {
+                    this.studentPayments = response.body || [];
+                    console.log('Loaded student payments:', this.studentPayments);
+                    this.loadingPayments = false;
+                },
+                error => {
+                    console.error('Error loading student payments:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load student payments: ' + (error.message || error),
+                        life: 3000
+                    });
+                    this.loadingPayments = false;
+                    this.studentPayments = []; // Reset to empty array on error
+                }
+            );
+    }
+
+    /**
+     * Edit an existing payment
+     */
+    editPayment(payment: Payment): void {
+        // Navigate to the payment edit page with payment ID
+        this.router.navigate(['/payments/edit', payment.id]);
+    }
+
+    /**
+     * View payment details
+     */
+    viewPaymentDetails(payment: Payment): void {
+        // Navigate to the payment details page with payment ID
+        this.router.navigate(['/payments/view', payment.id]);
+    }
+
+    /**
+     * Create a new payment for the current student
+     */
+    createPaymentForStudent(): void {
+        // Navigate to the make payment page with the student ID prefilled
+        if (this.currentStudent && this.currentStudent.id) {
+            this.router.navigate(['/payments/add'], {
+                queryParams: {
+                    studentId: this.currentStudent.id,
+                    studentName: `${this.currentStudent.user?.firstName} ${this.currentStudent.user?.lastName}`.trim()
+                }
+            });
+        } else {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Student ID is missing',
+                life: 3000
+            });
         }
     }
 }

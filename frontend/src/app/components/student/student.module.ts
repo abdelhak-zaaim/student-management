@@ -21,6 +21,7 @@ import {MessageService} from "primeng/api";
 import {InputTextModule} from "primeng/inputtext";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {ButtonModule} from "primeng/button";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import {ButtonModule} from "primeng/button";
         InputTextareaModule,
         ButtonModule,
         DropdownModule,
-        StudentRoutingModule
+        StudentRoutingModule,
+        ProgressSpinnerModule
     ],
     providers: [
         MessageService
