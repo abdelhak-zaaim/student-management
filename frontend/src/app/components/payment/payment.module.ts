@@ -17,26 +17,28 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @NgModule({
   declarations: [ListComponent, MakePaymentComponent],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ToastModule,
-    ToolbarModule,
-    FileUploadModule,
-    TableModule,
-    PaginatorModule,
-    DialogModule,
-    RippleModule,
-    InputTextModule,
-    ButtonModule,
-    DropdownModule,
-    PaymentRoutingModule,
-    CalendarModule,
-    InputNumberModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ToastModule,
+        ToolbarModule,
+        FileUploadModule,
+        TableModule,
+        PaginatorModule,
+        DialogModule,
+        RippleModule,
+        InputTextModule,
+        ButtonModule,
+        DropdownModule,
+        PaymentRoutingModule,
+        CalendarModule,
+        InputNumberModule,
+        ProgressSpinnerModule
+    ],
   providers: [MessageService]
 })
 export class PaymentModule { }

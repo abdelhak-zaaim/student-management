@@ -8,6 +8,7 @@ import { StudentService } from '../../student/student.service';
 import { PaymentStatus } from '../../../models/payment-status .enum';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { PdfGeneratorService } from '../../../services/pdf-generator.service';
 
 interface PaymentStatusOption {
   label: string;
@@ -37,7 +38,8 @@ export class ListComponent implements OnInit {
     private paymentService: PaymentService,
     private studentService: StudentService,
     private messageService: MessageService,
-    private http: HttpClient
+    private http: HttpClient,
+    private pdfGenerator: PdfGeneratorService // Added the PDF generator service
   ) {}
 
   ngOnInit(): void {
@@ -367,5 +369,42 @@ export class ListComponent implements OnInit {
    */
   onGlobalFilter(table: Table, event: Event): void {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  /**
+   * Download a PDF receipt for a specific payment
+   */
+  downloadReceipt(payment: Payment): void {
+    try {
+      // Generate the PDF document
+      const doc = this.pdfGenerator.generatePaymentReceipt(payment);
+
+      // Generate a suitable filename
+      let filename = `payment-receipt`;
+      if (payment.id) filename += `-${payment.id}`;
+      if (payment.student?.user) {
+        const studentName = `${payment.student.user.lastName || ''}-${payment.student.user.firstName || ''}`.trim();
+        if (studentName) filename += `-${studentName}`;
+      }
+      filename += '.pdf';
+
+      // Download the PDF
+      this.pdfGenerator.downloadPdf(doc, filename);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Receipt downloaded successfully!',
+        life: 3000
+      });
+    } catch (error) {
+      console.error('Error generating receipt:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to generate receipt PDF',
+        life: 3000
+      });
+    }
   }
 }

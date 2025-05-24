@@ -59,4 +59,104 @@
     </div>
 </div>
 
+<!-- Receipt Preview Dialog -->
+<p-dialog [(visible)]="receiptDialog"
+         header="Payment Receipt"
+         [modal]="true"
+         [style]="{width:'650px'}"
+         [maximizable]="true"
+         [closable]="true"
+         styleClass="p-fluid receipt-dialog">
+    <div *ngIf="isLoading" class="flex justify-content-center p-4">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <div *ngIf="!isLoading && createdPayment" class="payment-receipt">
+        <!-- Receipt Header -->
+        <div class="receipt-header text-center mb-4">
+            <h2 class="text-primary mb-2">BEGENIUS</h2>
+            <h3 class="text-secondary">PAYMENT RECEIPT</h3>
+        </div>
+
+        <!-- Receipt Details -->
+        <div class="grid">
+            <!-- Left Column - Receipt Details -->
+            <div class="col-12 md:col-6">
+                <h4>Receipt Details</h4>
+                <div class="receipt-field mb-2">
+                    <span class="font-bold">Receipt #:</span>
+                    <span>{{createdPayment.id || 'Pending'}}</span>
+                </div>
+                <div class="receipt-field mb-2">
+                    <span class="font-bold">Date:</span>
+                    <span>{{createdPayment.date | date:'medium'}}</span>
+                </div>
+                <div class="receipt-field mb-2">
+                    <span class="font-bold">Status:</span>
+                    <span [class]="'payment-badge status-' + createdPayment.status?.toLowerCase()">
+                        {{createdPayment.status}}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right Column - Student Info -->
+            <div class="col-12 md:col-6">
+                <h4>Student Information</h4>
+                <div *ngIf="createdPayment.student?.user" class="mb-2">
+                    <div class="receipt-field mb-2">
+                        <span class="font-bold">Name:</span>
+                        <span>{{createdPayment.student?.user?.firstName}} {{createdPayment.student?.user?.lastName}}</span>
+                    </div>
+                    <div class="receipt-field mb-2">
+                        <span class="font-bold">ID:</span>
+                        <span>{{createdPayment.student?.id}}</span>
+                    </div>
+                    <div class="receipt-field mb-2">
+                        <span class="font-bold">Group:</span>
+                        <span>{{createdPayment.student?.studentGroup?.name || 'N/A'}}</span>
+                    </div>
+                </div>
+                <div *ngIf="!createdPayment.student?.user">
+                    <p class="text-muted">Student information not available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Amount -->
+        <div class="mt-4 p-3 surface-100 border-round">
+            <div class="grid">
+                <div class="col-6">
+                    <span class="font-bold">Tuition Payment</span>
+                </div>
+                <div class="col-6 text-right">
+                    <span class="font-bold">{{createdPayment.amount | currency:'USD':'symbol':'1.2-2'}}</span>
+                </div>
+            </div>
+            <hr class="my-2" />
+            <div class="grid">
+                <div class="col-6">
+                    <span class="font-bold text-xl">Total</span>
+                </div>
+                <div class="col-6 text-right">
+                    <span class="font-bold text-xl">{{createdPayment.amount | currency:'USD':'symbol':'1.2-2'}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Footer -->
+        <div class="mt-4 text-center">
+            <p class="mb-1">Thank you for your payment!</p>
+            <p class="text-sm text-muted">This is an electronically generated receipt and does not require a signature.</p>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end w-full">
+            <p-button label="Close" icon="pi pi-times" styleClass="p-button-text mr-2" (onClick)="receiptDialog = false"></p-button>
+            <p-button label="Download PDF" icon="pi pi-file-pdf" styleClass="p-button-info"
+                     [disabled]="!createdPayment" (onClick)="downloadReceipt()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
 <p-toast></p-toast>
