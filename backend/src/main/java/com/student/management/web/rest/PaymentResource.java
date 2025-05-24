@@ -159,6 +159,19 @@ public class PaymentResource {
     }
 
     /**
+     * {@code GET  /payments/student/:id} : get all the payments for a specific student.
+     *
+     * @param id the id of the student.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of payments in body.
+     */
+    @GetMapping("/student/{id}")
+    public ResponseEntity<List<Payment>> getPaymentsByStudentId(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Payments for Student : {}", id);
+        List<Payment> payments = paymentService.findByStudentId(id);
+        return ResponseEntity.ok().body(payments);
+    }
+
+    /**
      * {@code DELETE  /payments/:id} : delete the "id" payment.
      *
      * @param id the id of the payment to delete.

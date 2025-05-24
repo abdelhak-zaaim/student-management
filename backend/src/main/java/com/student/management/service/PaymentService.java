@@ -87,6 +87,18 @@ public class PaymentService {
     }
 
     /**
+     * Get all payments for a specific student.
+     *
+     * @param studentId the id of the student.
+     * @return the list of payments.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<Payment> findByStudentId(Long studentId) {
+        LOG.debug("Request to get all Payments for Student : {}", studentId);
+        return paymentRepository.findByStudentId(studentId);
+    }
+
+    /**
      * Get one payment by id.
      *
      * @param id the id of the entity.
