@@ -1,0 +1,114 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Add New Professor</h5>
+            <p>Create a new professor account with subject and group assignments.</p>
+
+            <div class="p-fluid formgrid grid">
+                <!-- Basic Information Section -->
+                <div class="col-12">
+                    <div class="card mb-0 p-0">
+                        <h6>Basic Information</h6>
+
+                        <div class="formgrid grid mb-4">
+                            <!-- First Name -->
+                            <div class="field col-12 md:col-6">
+                                <label for="firstName" class="font-bold">First Name*</label>
+                                <input type="text" pInputText id="firstName" [(ngModel)]="professor.user!.firstName"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !professor.user?.firstName?.trim()}"/>
+                                <small class="p-error" *ngIf="submitted && !professor.user?.firstName?.trim()">First name is required.</small>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="field col-12 md:col-6">
+                                <label for="lastName" class="font-bold">Last Name*</label>
+                                <input type="text" pInputText id="lastName" [(ngModel)]="professor.user!.lastName"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !professor.user?.lastName?.trim()}"/>
+                                <small class="p-error" *ngIf="submitted && !professor.user?.lastName?.trim()">Last name is required.</small>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="field col-12">
+                                <label for="email" class="font-bold">Email</label>
+                                <input type="email" pInputText id="email" [(ngModel)]="professor.user!.email"
+                                       placeholder="Optional"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && professor.user?.email && !isEmailValid()}"/>
+                                <small class="p-error" *ngIf="submitted && professor.user?.email && !isEmailValid()">
+                                    Please enter a valid email address.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subjects and Groups Section -->
+                <div class="col-12 mt-4">
+                    <div class="card mb-0 p-0">
+                        <h6>Subject and Group Assignments*</h6>
+                        <p>Assign the professor to teach subjects for specific groups.</p>
+
+                        <div *ngFor="let record of subjectGroupRecords; let i = index" class="subject-group-record mb-4">
+                            <div class="formgrid grid mb-2">
+                                <div class="field col-12 md:col-5">
+                                    <label for="subject-{{i}}" class="font-bold">Subject*</label>
+                                    <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="record.subject"
+                                                optionLabel="name" dataKey="id" [filter]="true" filterBy="name"
+                                                placeholder="Select Subject" [disabled]="loading"
+                                                [ngClass]="{'ng-invalid ng-dirty': submitted && !record.subject}">
+                                    </p-dropdown>
+                                    <small class="p-error" *ngIf="submitted && !record.subject">Subject is required.</small>
+                                </div>
+
+                                <div class="field col-12 md:col-7">
+                                    <label for="groups-{{i}}" class="font-bold">Groups*</label>
+                                    <p-multiSelect id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="record.studentGroup"
+                                                   optionLabel="name" dataKey="id"
+                                                   placeholder="Select Groups" [disabled]="loading"
+                                                   [ngClass]="{'ng-invalid ng-dirty': submitted && (!record.studentGroup || record.studentGroup.length === 0)}">
+                                    </p-multiSelect>
+                                    <small class="p-error" *ngIf="submitted && (!record.studentGroup || record.studentGroup.length === 0)">
+                                        At least one group is required.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-content-end">
+                                <button pButton pRipple type="button" icon="pi pi-trash"
+                                        label="Remove" class="p-button-outlined p-button-danger"
+                                        [disabled]="loading || subjectGroupRecords.length <= 1"
+                                        (click)="removeSubjectGroupRecord(i)">
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-content-start mb-4">
+                            <button pButton pRipple type="button" icon="pi pi-plus"
+                                    label="Add Another Subject" class="p-button-outlined"
+                                    [disabled]="loading"
+                                    (click)="addSubjectGroupRecord()">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="field col-12 mt-4">
+                    <div class="flex justify-content-end">
+                        <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text mr-2"
+                                 (onClick)="cancel()" [disabled]="loading"></p-button>
+                        <p-button label="Reset" icon="pi pi-refresh" styleClass="p-button-secondary mr-2"
+                                 (onClick)="resetForm()" [disabled]="loading"></p-button>
+                        <p-button label="Create Professor" icon="pi pi-check"
+                                 (onClick)="createProfessor()" [loading]="loading"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
+
