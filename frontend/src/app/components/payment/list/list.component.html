@@ -1,1 +1,194 @@
-<p>list works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                                (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
+                                (click)="deleteSelectedPayments()"
+                                [disabled]="!selectedPayments || !selectedPayments.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import"
+                                  chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                            (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="payments!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                     [globalFilterFields]="['amount','status','date','student.user.firstName','student.user.lastName']"
+                     [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     [(selection)]="selectedPayments" selectionMode="multiple" [rowHover]="true" dataKey="id"
+                     tableStyleClass="equilibrated">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Payments</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                   class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <!-- Define column groups for balanced width -->
+                <ng-template pTemplate="colgroup">
+                    <col style="width:3rem">          <!-- checkbox column -->
+                    <col style="width:10%">           <!-- Id -->
+                    <col style="width:15%">           <!-- Amount -->
+                    <col style="width:15%">           <!-- Status -->
+                    <col style="width:20%">           <!-- Date -->
+                    <col style="width:20%">           <!-- Student -->
+                    <col style="width:20%">           <!-- Actions -->
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="id" class="spaced-column centered-column">Id
+                            <p-sortIcon field="id"></p-sortIcon>
+                        </th>
+
+                        <th pSortableColumn="amount" class="spaced-column centered-column">Amount
+                            <p-sortIcon field="amount"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="status" class="spaced-column centered-column">Status
+                            <p-sortIcon field="status"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="date" class="spaced-column centered-column">Date
+                            <p-sortIcon field="date"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="student.user.firstName" class="spaced-column centered-column">Student
+                            <p-sortIcon field="student.user.firstName"></p-sortIcon>
+                        </th>
+
+                        <th class="actions-column centered-column">Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-payment>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="payment"></p-tableCheckbox>
+                        </td>
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Id</span>
+                            {{ payment.id }}
+                        </td>
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Amount</span>
+                            {{ payment.amount | currency:'USD':'symbol':'1.2-2' }}
+                        </td>
+
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Status</span>
+                            <span [class]="'payment-badge status-' + payment.status?.toLowerCase()">{{ payment.status }}</span>
+                        </td>
+
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Date</span>
+                            {{ payment.date | date:'medium' }}
+                        </td>
+
+                        <td class="spaced-column centered-column">
+                            <span class="p-column-title">Student</span>
+                            {{ payment.student?.user?.firstName }} {{ payment.student?.user?.lastName }}
+                        </td>
+
+                        <td class="actions-column">
+                            <div class="flex justify-content-center">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-success mr-2"
+                                        (click)="editPayment(payment)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                        (click)="deletePayment(payment)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Create/Edit Payment Dialog -->
+        <p-dialog [(visible)]="paymentDialog"
+                  [style]="{width: '500px'}"
+                  [contentStyle]="{overflow: 'visible'}"
+                  header="Payment Details"
+                  [modal]="true"
+                  [baseZIndex]="1000"
+                  styleClass="p-fluid payment-dialog">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="amount">Amount</label>
+                    <p-inputNumber id="amount" [(ngModel)]="payment.amount" mode="currency" currency="USD" locale="en-US"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.amount}"></p-inputNumber>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !payment.amount">Amount is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="status">Status</label>
+                    <p-dropdown id="status" [options]="statuses" [(ngModel)]="payment.status"
+                                optionLabel="label" optionValue="value"
+                                placeholder="Select a Status" [showClear]="false"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.status}"></p-dropdown>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !payment.status">Status is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="date">Date</label>
+                    <p-calendar id="date" [(ngModel)]="payment.date" dateFormat="yy-mm-dd"
+                              [showTime]="true" [showButtonBar]="true"
+                              [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.date}"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !payment.date">Date is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="student">Student</label>
+                    <p-dropdown id="student" [options]="students" [(ngModel)]="payment.student"
+                                optionLabel="displayName" dataKey="id"
+                                [filter]="true" filterBy="displayName"
+                                placeholder="Select a Student"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.student}"></p-dropdown>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !payment.student">Student is required.</small>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="savePayment()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Payment Dialog -->
+        <p-dialog [(visible)]="deletePaymentDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="payment">Are you sure you want to delete the payment of
+                    <b>{{payment.amount | currency:'USD':'symbol':'1.2-2'}}</b> for
+                    <b>{{payment.student?.user?.firstName}} {{payment.student?.user?.lastName}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deletePaymentDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Multiple Payments Dialog -->
+        <p-dialog [(visible)]="deletePaymentsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete the selected payments?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deletePaymentsDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
