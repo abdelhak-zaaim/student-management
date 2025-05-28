@@ -17,7 +17,7 @@ import { Subject } from '../../../models/subject.model';
 })
 export class ListComponent implements OnInit {
   professors: Professor[] | null = null;
-  professor: Professor = { user: { firstName: '', lastName: '', email: '' } };
+  professor: Professor = { user: { firstName: '', lastName: '', email: '', password : ''} };
   selectedProfessors: Professor[] = [];
 
   // Properties for the professor assignments dialog
@@ -348,7 +348,8 @@ export class ListComponent implements OnInit {
         id: this.professor.user.id,
         firstName: this.professor.user.firstName,
         lastName: this.professor.user.lastName,
-        email: this.professor.user.email
+        email: this.professor.user.email,
+          password: this.professor.user.password
       },
       courseAssignments: this.courseAssignments
     };
@@ -484,11 +485,17 @@ export class ListComponent implements OnInit {
     }
   }
 
-    isPasswordValid() {
-        if (this.professor.user?.password) {
-            const password = this.professor.user.password;
-            return password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
-        }
-        return false; // Optional field, so return false if not provided
+isPasswordValid() {
+    // Check if password is provided
+    if (this.professor.user?.password && this.professor.user.password.trim() !== '') {
+        // Password is provided - validate it
+        const password = this.professor.user.password;
+        return password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
     }
+
+    // Password is not provided
+    // If editing (professor has ID), it's optional
+    // If adding new professor (no ID), it's required
+    return !!this.professor.id;
+}
 }

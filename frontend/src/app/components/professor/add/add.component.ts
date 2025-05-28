@@ -146,6 +146,11 @@ export class AddComponent implements OnInit {
             return;
         }
 
+        if (!this.isPasswordValid()) {
+            return;
+        }
+
+
         if (this.courseAssignments.some(assignment => !assignment.subject || !assignment.studentGroup)) {
             return;
         }
@@ -156,7 +161,8 @@ export class AddComponent implements OnInit {
             user: {
                 firstName: this.professor.user.firstName,
                 lastName: this.professor.user.lastName,
-                email: this.professor.user.email
+                email: this.professor.user.email,
+                password: this.professor.user.password
             },
             courseAssignments: this.courseAssignments
         };
@@ -207,7 +213,8 @@ export class AddComponent implements OnInit {
             user: {
                 firstName: '',
                 lastName: '',
-                email: ''
+                email: '',
+                password: ''
             }
         };
         this.courseAssignments = [];
@@ -223,10 +230,16 @@ export class AddComponent implements OnInit {
     }
 
     isPasswordValid() {
-        if (this.professor.user?.password) {
+        // Check if password is provided
+        if (this.professor.user?.password && this.professor.user.password.trim() !== '') {
+            // Password is provided - validate it
             const password = this.professor.user.password;
             return password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
         }
-        return false; // Optional field, so return false if not provided
+
+        // Password is not provided
+        // If editing (professor has ID), it's optional
+        // If adding new professor (no ID), it's required
+        return !!this.professor.id;
     }
 }
