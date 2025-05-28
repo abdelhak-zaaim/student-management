@@ -3,21 +3,40 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+export interface RevenueOverviewDTO {
+  totalRevenue: number;
+  currentMonthRevenue: number;
+  previousMonthRevenue: number;
+  percentageChange: number;
+  monthOverMonthChange: number;
+  averageMonthlyRevenue: number;
+  revenueByPaymentMethod: {[key: string]: number};
+  topRevenueByStudentGroup: {[key: string]: number};
+}
+
 export interface DashboardDTO {
   totalStudents: number;
   totalProfessors: number;
+  totalStudentGroups: number;
+  totalSubjects: number;
+  totalPayments: number;
+  pendingPayments: number;
+  averagePaymentAmount: number;
   totalRevenue: number;
   revenueLastMonth: number;
   revenueByMonth: Array<{[key: string]: any}>;
   lastPayments: Array<{[key: string]: any}>;
   professorActivities: Array<{[key: string]: any}>;
+  studentsPerGroup: {[key: string]: number};
+  paymentsPerStatus: {[key: string]: number};
+  revenueOverview: RevenueOverviewDTO;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = environment.apiBaseUrl;
+  private apiUrl = environment.apiBaseUrl || '/api';
 
   constructor(private http: HttpClient) { }
 

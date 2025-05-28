@@ -1,205 +1,257 @@
 <div class="grid">
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Students</span>
-                        <div class="text-900 font-medium text-xl">{{studentCount}}</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-blue-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-users text-blue-500 text-xl"></i>
-                    </div>
+    <!-- Top Summary Cards Row -->
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Students</span>
+                    <div class="text-900 font-medium text-xl">{{studentCount | number}}</div>
                 </div>
-                <span class="text-green-500 font-medium">Active </span>
-                <span class="text-500">students in the system</span>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Revenue</span>
-                        <div class="text-900 font-medium text-xl">${{totalRevenue | number:'1.2-2'}}</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-orange-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-dollar text-orange-500 text-xl"></i>
-                    </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-users text-blue-500 text-xl"></i>
                 </div>
-                <span class="text-green-500 font-medium">{{pendingPayments}} pending </span>
-                <span class="text-500">payments</span>
             </div>
+            <span class="text-green-500 font-medium">Active </span>
+            <span class="text-500">students in the system</span>
         </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Professors</span>
-                        <div class="text-900 font-medium text-xl">{{professorCount}}</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-user text-cyan-500 text-xl"></i>
-                    </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Revenue</span>
+                    <div class="text-900 font-medium text-xl">${{totalRevenue | number:'1.2-2'}}</div>
                 </div>
-                <span class="text-green-500 font-medium">Active </span>
-                <span class="text-500">professors</span>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Groups</span>
-                        <div class="text-900 font-medium text-xl">{{groupCount}}</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-purple-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-th-large text-purple-500 text-xl"></i>
-                    </div>
+                <div class="flex align-items-center justify-content-center bg-orange-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-dollar text-orange-500 text-xl"></i>
                 </div>
-                <span class="text-green-500 font-medium">Active </span>
-                <span class="text-500">class groups</span>
             </div>
+            <span [ngClass]="isPositiveChange() ? 'text-green-500' : 'text-red-500'" class="font-medium">{{getPercentChange()}} </span>
+            <span class="text-500">since last month</span>
         </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Professors</span>
+                    <div class="text-900 font-medium text-xl">{{professorCount | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-user text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Active professors</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Groups</span>
+                    <div class="text-900 font-medium text-xl">{{totalStudentGroups | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-purple-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-th-large text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Active class groups</span>
+        </div>
+    </div>
 
-        <div class="col-12 xl:col-6">
-            <div class="card">
-                <h5>Recent Payments</h5>
-                <p-table [value]="recentPayments" [paginator]="true" [rows]="5" responsiveLayout="scroll" *ngIf="recentPayments && recentPayments.length > 0">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Student</th>
-                            <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
-                            <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
-                            <th>Status</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-payment>
-                        <tr>
-                            <td style="width: 35%; min-width: 7rem;">{{payment.studentName}}</td>
-                            <td style="width: 25%; min-width: 8rem;">{{payment.amount | currency:'USD'}}</td>
-                            <td style="width: 25%; min-width: 8rem;">{{payment.date | date:'short'}}</td>
-                            <td style="width: 15%;">
-                                <span [class]="'payment-badge status-' + payment.status.toLowerCase()">{{payment.status}}</span>
-                            </td>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="emptymessage">
-                        <tr>
-                            <td colspan="4">No payment records found.</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-            <div class="card">
-                <div class="flex justify-content-between align-items-center mb-5">
-                    <h5>Student Distribution</h5>
-                    <div>
-                        <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
-                        <p-menu #menu [popup]="true" [model]="items"></p-menu>
-                    </div>
+    <!-- Second Row of Summary Cards -->
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Total Payments</span>
+                    <div class="text-900 font-medium text-xl">{{totalPayments | number}}</div>
                 </div>
-                <ul class="list-none p-0 m-0">
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">First Year</span>
-                            <div class="mt-1 text-600">Freshmen</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-orange-500 h-full" [ngStyle]="{width: '50%'}"></div>
-                            </div>
-                            <span class="text-orange-500 ml-3 font-medium">%50</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Second Year</span>
-                            <div class="mt-1 text-600">Sophomores</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-cyan-500 h-full" [ngStyle]="{width: '16%'}"></div>
-                            </div>
-                            <span class="text-cyan-500 ml-3 font-medium">%16</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Third Year</span>
-                            <div class="mt-1 text-600">Juniors</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-pink-500 h-full" [ngStyle]="{width: '67%'}"></div>
-                            </div>
-                            <span class="text-pink-500 ml-3 font-medium">%67</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Fourth Year</span>
-                            <div class="mt-1 text-600">Seniors</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-green-500 h-full" [ngStyle]="{width: '35%'}"></div>
-                            </div>
-                            <span class="text-green-500 ml-3 font-medium">%35</span>
-                        </div>
-                    </li>
-                </ul>
+                <div class="flex align-items-center justify-content-center bg-green-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-money-bill text-green-500 text-xl"></i>
+                </div>
             </div>
+            <span class="text-yellow-500 font-medium">{{pendingPayments}} pending </span>
+            <span class="text-500">payments</span>
         </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Avg. Payment</span>
+                    <div class="text-900 font-medium text-xl">${{averagePaymentAmount | number:'1.2-2'}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-teal-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-chart-bar text-teal-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Average payment amount</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Subjects</span>
+                    <div class="text-900 font-medium text-xl">{{totalSubjects | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-indigo-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-book text-indigo-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Available subjects</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Avg. Monthly</span>
+                    <div class="text-900 font-medium text-xl">${{revenueOverview?.averageMonthlyRevenue | number:'1.2-2'}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-chart-line text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Average monthly revenue</span>
+        </div>
+    </div>
 
-        <div class="col-12 xl:col-6">
-            <div class="card">
+    <!-- Main Content Area -->
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <div class="flex justify-content-between mb-3">
                 <h5>Revenue Overview</h5>
-                <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+                <div>
+                    <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
+                    <p-menu #menu [popup]="true" [model]="items"></p-menu>
+                </div>
+            </div>
+            <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+        </div>
+
+        <div class="card">
+            <h5>Recent Payments</h5>
+            <p-table [value]="recentPayments" [paginator]="true" [rows]="5" responsiveLayout="scroll"
+                    *ngIf="recentPayments && recentPayments.length > 0" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Student</th>
+                        <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+                        <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-payment>
+                    <tr>
+                        <td style="width: 35%; min-width: 7rem;">{{payment.studentName}}</td>
+                        <td style="width: 25%; min-width: 8rem;">{{payment.amount | currency:'USD'}}</td>
+                        <td style="width: 25%; min-width: 8rem;">{{payment.date | date:'short'}}</td>
+                        <td style="width: 15%;">
+                            <span [ngClass]="'payment-badge status-' + payment.status.toLowerCase()">{{payment.status}}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4">No payment records found.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Payment Status Distribution</h5>
+            <div class="flex justify-content-center">
+                <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions" [style]="{'width': '100%', 'max-height': '300px'}"></p-chart>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex align-items-center justify-content-between mb-4">
+                <h5>Professor Activities</h5>
+                <div>
+                    <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
+                    <p-menu #menu [popup]="true" [model]="items"></p-menu>
+                </div>
             </div>
 
-            <div class="card">
-                <div class="flex align-items-center justify-content-between mb-4">
-                    <h5>Recent Activities</h5>
-                    <div>
-                        <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
-                        <p-menu #menu [popup]="true" [model]="items"></p-menu>
+            <p-timeline [value]="professorActivities" layout="vertical" styleClass="customized-timeline">
+                <ng-template pTemplate="marker" let-activity>
+                    <span class="flex w-2rem h-2rem align-items-center justify-content-center"
+                          [ngClass]="{'bg-primary': activity.type === 'CLASS', 'bg-success': activity.type === 'GRADING', 'bg-info': activity.type === 'OFFICE_HOURS'}"
+                          style="border-radius: 50%;">
+                        <i [ngClass]="{'pi pi-book': activity.type === 'CLASS', 'pi pi-check-square': activity.type === 'GRADING', 'pi pi-calendar': activity.type === 'OFFICE_HOURS'}"
+                           style="font-size: 1rem; color: white;"></i>
+                    </span>
+                </ng-template>
+                <ng-template pTemplate="content" let-activity>
+                    <div class="p-3 surface-card shadow-2 mb-3" style="border-radius: 8px;">
+                        <div class="flex flex-column">
+                            <span class="font-medium text-lg text-900">{{activity.title}}</span>
+                            <p class="line-height-3 text-700 my-2">{{activity.description}}</p>
+                            <div class="flex align-items-center">
+                                <i class="pi pi-clock text-500 mr-1"></i>
+                                <span class="text-500 font-medium">{{activity.time | date:'short'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-timeline>
+        </div>
+    </div>
+
+    <!-- Revenue Analysis -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Revenue Analytics</h5>
+            <div class="grid">
+                <!-- Revenue by Payment Method -->
+                <div class="col-12 md:col-6">
+                    <div class="card mb-0">
+                        <h6>Revenue by Payment Method</h6>
+                        <p-chart type="doughnut" [data]="paymentMethodChartData" [options]="paymentMethodChartOptions"
+                            height="250px"></p-chart>
                     </div>
                 </div>
 
-                <span class="block text-600 font-medium mb-3">TODAY</span>
-                <ul class="p-0 mx-0 mt-0 mb-4 list-none">
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-dollar text-xl text-blue-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">New payment received
-                            <span class="text-700"> for <span class="text-blue-500">Course Registration</span></span>
-                        </span>
-                    </li>
-                    <li class="flex align-items-center py-2">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-users text-xl text-orange-500"></i>
-                        </div>
-                        <span class="text-700 line-height-3">New student <span class="text-blue-500 font-medium">registration</span> completed.</span>
-                    </li>
-                </ul>
-
-                <span class="block text-600 font-medium mb-3">YESTERDAY</span>
-                <ul class="p-0 m-0 list-none">
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-user text-xl text-blue-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">New professor added
-                            <span class="text-700"> to <span class="text-blue-500">Mathematics department</span></span>
-                        </span>
-                    </li>
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-th-large text-xl text-pink-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">New group created<span class="text-700"> for Advanced Physics course.</span></span>
-                    </li>
-                </ul>
+                <!-- Top Revenue by Student Group -->
+                <div class="col-12 md:col-6">
+                    <div class="card mb-0">
+                        <h6>Top Revenue by Student Group</h6>
+                        <p-chart type="bar" [data]="studentGroupRevenueChartData" [options]="studentGroupRevenueChartOptions"
+                            height="250px"></p-chart>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Students per Group -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Students per Group</h5>
+            <div class="grid">
+                <div class="col-12 lg:col-6" *ngFor="let group of studentsPerGroup | keyvalue">
+                    <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">{{group.key}}</span>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-8rem" [ngStyle]="{height: '8px'}">
+                                <div class="bg-primary h-full" [ngStyle]="{width: (group.value / studentCount * 100) + '%'}"></div>
+                            </div>
+                            <span class="text-primary ml-3 font-medium">{{group.value}} students</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>

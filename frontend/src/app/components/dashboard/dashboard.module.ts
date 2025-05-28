@@ -8,7 +8,11 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { StyleClassModule } from 'primeng/styleclass';
 import { PanelMenuModule } from 'primeng/panelmenu';
-import { DashboardsRoutingModule } from './dashboard-routing.module';
+import { DashboardRoutingModule } from './dashboard-routing.module';
+import { TimelineModule } from "primeng/timeline";
+import { ToastModule } from "primeng/toast";
+import { ConfirmDialogModule } from "primeng/confirmdialog";
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 @NgModule({
     imports: [
@@ -20,7 +24,14 @@ import { DashboardsRoutingModule } from './dashboard-routing.module';
         StyleClassModule,
         PanelMenuModule,
         ButtonModule,
-        DashboardsRoutingModule
+        DashboardRoutingModule,
+        TimelineModule,
+        ToastModule,
+        ConfirmDialogModule
+    ],
+    providers: [
+        MessageService,
+        ConfirmationService
     ],
     declarations: [DashboardComponent]
 })
