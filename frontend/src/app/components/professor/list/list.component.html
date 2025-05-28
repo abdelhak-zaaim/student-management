@@ -144,6 +144,16 @@
                     </small>
                 </div>
 
+
+                <div class="field">
+                    <label for="email">Password</label>
+                    <input type="text" pInputText id="email" [(ngModel)]="professor.user!.password"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !isPasswordValid()}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !isPasswordValid()">
+                        Please enter a valid Password.
+                    </small>
+                </div>
+
                 <div class="field">
                     <label>Course Assignments</label>
                     <div *ngFor="let assignment of courseAssignments; let i = index" class="course-assignment-record">

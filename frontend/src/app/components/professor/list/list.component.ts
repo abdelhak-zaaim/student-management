@@ -483,4 +483,12 @@ export class ListComponent implements OnInit {
       this.assignmentsDialog = true;
     }
   }
+
+    isPasswordValid() {
+        if (this.professor.user?.password) {
+            const password = this.professor.user.password;
+            return password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
+        }
+        return false; // Optional field, so return false if not provided
+    }
 }

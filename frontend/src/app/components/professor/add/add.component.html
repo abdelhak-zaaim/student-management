@@ -33,13 +33,23 @@
                             <div class="field col-12">
                                 <label for="email" class="font-bold">Email</label>
                                 <input type="email" pInputText id="email" [(ngModel)]="professor.user!.email"
-                                       placeholder="Optional"
                                        [disabled]="loading"
                                        [ngClass]="{'ng-invalid ng-dirty': submitted && professor.user?.email && !isEmailValid()}"/>
                                 <small class="p-error" *ngIf="submitted && professor.user?.email && !isEmailValid()">
                                     Please enter a valid email address.
                                 </small>
                             </div>
+
+                            <div class="field col-12 md:col-6">
+                                <label for="password" class="font-bold">Password*</label>
+                                <input type="text" pInputText id="password" [(ngModel)]="professor.user!.password"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !professor.user?.password && !isPasswordValid()}"/>
+                                <small class="p-error" *ngIf="submitted && !professor.user?.password">Password is Required.</small>
+                            </div>
+
+
+
                         </div>
                     </div>
                 </div>

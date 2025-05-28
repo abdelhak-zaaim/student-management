@@ -9,4 +9,5 @@ export interface User {
     langKey?: string;
     imageUrl?: string;
     activationKey?: string;
+    password?: string;
 }
