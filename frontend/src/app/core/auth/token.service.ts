@@ -65,4 +65,9 @@ export class TokenService {
         while (base64.length % 4) { base64 += '='; }
         return base64;
     }
+
+    // logout method to clear the token
+    logout(): void {
+        localStorage.removeItem('token');
+    }
 }
