@@ -98,6 +98,10 @@
                                 <button pButton pRipple icon="pi pi-pencil"
                                         class="p-button-rounded p-button-success mr-2"
                                         (click)="editProfessor(professor)"></button>
+                                <button pButton pRipple icon="pi pi-book"
+                                        class="p-button-rounded p-button-info mr-2"
+                                        (click)="showProfessorAssignments(professor)"
+                                        pTooltip="View Assignments"></button>
                                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
                                         (click)="deleteProfessor(professor)"></button>
                             </div>
@@ -193,6 +197,40 @@
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProfessorsDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Professor Assignments Dialog -->
+        <p-dialog [(visible)]="assignmentsDialog"
+                  [style]="{width: '650px'}"
+                  [header]="'Course Assignments - ' + (selectedProfessorForAssignments?.user?.firstName || '') + ' ' + (selectedProfessorForAssignments?.user?.lastName || '')"
+                  [modal]="true"
+                  [baseZIndex]="1000">
+            <div *ngIf="selectedProfessorForAssignments">
+                <div *ngIf="selectedProfessorForAssignments.courseAssignments && selectedProfessorForAssignments.courseAssignments.length > 0">
+                    <p-table [value]="selectedProfessorForAssignments.courseAssignments" styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Subject</th>
+                                <th>Group</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-assignment>
+                            <tr>
+                                <td>{{ assignment.subject?.name }}</td>
+                                <td>{{ assignment.studentGroup?.name }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <div *ngIf="!selectedProfessorForAssignments.courseAssignments || selectedProfessorForAssignments.courseAssignments.length === 0"
+                     class="p-4 text-center">
+                    <i class="pi pi-info-circle" style="font-size: 2rem; color: #9CA3AF;"></i>
+                    <p>No course assignments found for this professor.</p>
+                </div>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="assignmentsDialog = false"></button>
             </ng-template>
         </p-dialog>
     </div>

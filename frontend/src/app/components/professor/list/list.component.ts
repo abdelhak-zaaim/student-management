@@ -20,6 +20,10 @@ export class ListComponent implements OnInit {
   professor: Professor = { user: { firstName: '', lastName: '', email: '' } };
   selectedProfessors: Professor[] = [];
 
+  // Properties for the professor assignments dialog
+  assignmentsDialog = false;
+  selectedProfessorForAssignments: Professor | null = null;
+
   professorDialog = false;
   deleteProfessorDialog = false;
   deleteProfessorsDialog = false;
@@ -443,6 +447,40 @@ export class ListComponent implements OnInit {
     this.courseAssignments.splice(index, 1);
     if (this.courseAssignments.length === 0) {
       this.addCourseAssignment();
+    }
+  }
+
+  /**
+   * Shows the course assignments for a given professor in a dialog
+   * @param professor The professor whose assignments to show
+   */
+  showProfessorAssignments(professor: Professor): void {
+    // If the professor doesn't have course assignments loaded, fetch them first
+    if (professor.id && (!professor.courseAssignments || professor.courseAssignments.length === 0)) {
+      this.loading = true;
+
+      // Fetch the full professor details with assignments
+      this.professorService.find(professor.id).subscribe(
+        response => {
+          this.selectedProfessorForAssignments = response.body;
+          this.assignmentsDialog = true;
+          this.loading = false;
+        },
+        error => {
+          console.error('Error loading professor assignments:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to load professor assignments: ' + (error.message || error),
+            life: 3000
+          });
+          this.loading = false;
+        }
+      );
+    } else {
+      // Professor already has assignments loaded, just show them
+      this.selectedProfessorForAssignments = { ...professor };
+      this.assignmentsDialog = true;
     }
   }
 }
