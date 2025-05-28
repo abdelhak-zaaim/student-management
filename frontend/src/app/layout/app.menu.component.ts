@@ -20,10 +20,10 @@ export class AppMenuComponent implements OnInit {
                 ]
             },
             {
-                label: 'Profs',
+                label: 'Professors',
                 items: [
-                    { label: 'List Profs',  icon: 'pi pi-users',      routerLink: ['/profs/list'] },
-                    { label: 'Add Prof',   icon: 'pi pi-user-plus',  routerLink: ['/profs/add'] }
+                    { label: 'Professors',  icon: 'pi pi-users',      routerLink: ['/profs/list'] },
+                    { label: 'Add Professor',   icon: 'pi pi-user-plus',  routerLink: ['/profs/add'] }
                 ]
             },
             {
@@ -45,6 +45,14 @@ export class AppMenuComponent implements OnInit {
                 label: 'Groups',
                 items: [
                     { label: 'Groups', icon: 'pi pi-clone',       routerLink: ['/groups/list'] },
+                ]
+            },
+
+            {
+                label: 'Subjects',
+                items: [
+                    { label: 'Subjects', icon: 'pi pi-clone',       routerLink: ['/subjects/list'] },
+                    { label: 'Add Subject', icon: 'pi pi-clone',       routerLink: ['/subjects/add'] },
                 ]
             }
         ];
