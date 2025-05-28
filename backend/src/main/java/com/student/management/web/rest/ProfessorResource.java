@@ -212,6 +212,7 @@ public class ProfessorResource {
                 userDto.setFirstName((String) userMap.get("firstName"));
                 userDto.setLastName((String) userMap.get("lastName"));
                 userDto.setEmail((String) userMap.get("email"));
+                userDto.setPassowrd((String) userMap.get("password"));
                 dto.setUser(userDto);
 
                 // Convert courseAssignments to subjectGroups format

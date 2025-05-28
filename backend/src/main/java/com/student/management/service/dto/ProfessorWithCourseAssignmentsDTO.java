@@ -35,6 +35,7 @@ public class ProfessorWithCourseAssignmentsDTO {
         private String firstName;
         private String lastName;
         private String email;
+        private String passowrd;
 
         public String getFirstName() {
             return firstName;
@@ -58,6 +59,14 @@ public class ProfessorWithCourseAssignmentsDTO {
 
         public void setEmail(String email) {
             this.email = email;
+        }
+
+        public String getPassowrd() {
+            return passowrd;
+        }
+
+        public void setPassowrd(String passowrd) {
+            this.passowrd = passowrd;
         }
     }
 
