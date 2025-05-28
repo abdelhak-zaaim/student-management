@@ -1,8 +1,10 @@
 package com.student.management.web.rest;
 
+import com.student.management.domain.CourseAssignment;
 import com.student.management.domain.Professor;
 import com.student.management.repository.ProfessorRepository;
 import com.student.management.service.ProfessorService;
+import com.student.management.service.dto.ProfessorWithCourseAssignmentsDTO;
 import com.student.management.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -65,6 +68,32 @@ public class ProfessorResource {
         return ResponseEntity.created(new URI("/api/professors/" + professor.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, professor.getId().toString()))
             .body(professor);
+    }
+
+    /**
+     * {@code POST  /professors/with-assignments} : Create a new professor with course assignments.
+     *
+     * @param dto the data transfer object containing professor and course assignment details.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body containing the course assignments.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/with-assignments")
+    public ResponseEntity<List<CourseAssignment>> createProfessorWithAssignments(@RequestBody ProfessorWithCourseAssignmentsDTO dto) throws URISyntaxException {
+        LOG.debug("REST request to save Professor with course assignments : {}", dto);
+
+        if (dto.getUser() == null) {
+            throw new BadRequestAlertException("User information is required", ENTITY_NAME, "userrequired");
+        }
+
+        if (dto.getSubjectGroups() == null || dto.getSubjectGroups().isEmpty()) {
+            throw new BadRequestAlertException("At least one subject group assignment is required", ENTITY_NAME, "subjectgroupsrequired");
+        }
+
+        List<CourseAssignment> assignments = professorService.saveWithCourseAssignments(dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, "new"))
+            .body(assignments);
     }
 
     /**
