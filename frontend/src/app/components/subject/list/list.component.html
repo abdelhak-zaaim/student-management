@@ -1,0 +1,145 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                                (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
+                                (click)="deleteSelectedSubjects()"
+                                [disabled]="!selectedSubjects || !selectedSubjects.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import"
+                                  chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                            (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="subjects!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                     [globalFilterFields]="['name','description']"
+                     [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     [(selection)]="selectedSubjects" selectionMode="multiple" [rowHover]="true" dataKey="id"
+                     tableStyleClass="equilibrated">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Subjects</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                   class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="id" style="width: 15%">ID
+                            <p-sortIcon field="id"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="name" style="width: 25%">Name
+                            <p-sortIcon field="name"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="description" style="width: 40%">Description
+                            <p-sortIcon field="description"></p-sortIcon>
+                        </th>
+                        <th style="width: 20%">Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-subject>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="subject"></p-tableCheckbox>
+                        </td>
+                        <td>{{ subject.id }}</td>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.description }}</td>
+                        <td>
+                            <div class="flex justify-content-center">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                                        (click)="editSubject(subject)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                        (click)="deleteSubject(subject)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <div class="flex align-items-center justify-content-between">
+                        In total there are {{ subjects ? subjects.length : 0 }} subjects.
+                    </div>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Subject Dialog -->
+        <p-dialog [(visible)]="subjectDialog"
+                  [style]="{width: '450px'}"
+                  [contentStyle]="{overflow: 'visible'}"
+                  header="Subject Details"
+                  [modal]="true"
+                  [baseZIndex]="10000"
+                  styleClass="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" pInputText id="name" [(ngModel)]="subject.name" required autofocus
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && !subject.name?.trim()}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !subject.name?.trim()">
+                        Subject name is required.
+                    </small>
+                </div>
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea pInputTextarea id="description" [(ngModel)]="subject.description" rows="3"></textarea>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                        (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                        [loading]="loading"
+                        (click)="saveSubject()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Subject Dialog -->
+        <p-dialog [(visible)]="deleteSubjectDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="subject">Are you sure you want to delete <b>{{subject.name}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                        (click)="deleteSubjectDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                        [loading]="loading"
+                        (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete Multiple Subjects Dialog -->
+        <p-dialog [(visible)]="deleteSubjectsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete the selected subjects?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                        (click)="deleteSubjectsDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                        [loading]="loading"
+                        (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

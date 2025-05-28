@@ -34,6 +34,11 @@ import {AuthGuard} from "./guards/auth.guard";
                     },
 
 
+                    {
+                        path: 'subjects',
+                        loadChildren: () => import('./components/subject/subject.module').then(m => m.SubjectModule)
+                    },
+
                 ],
             },
 

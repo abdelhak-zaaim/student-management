@@ -1,0 +1,50 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Add New Subject</h5>
+            <p>Create a new subject for the curriculum.</p>
+
+            <div class="p-fluid formgrid grid">
+                <!-- Basic Information Section -->
+                <div class="col-12">
+                    <div class="card mb-0 p-0">
+                        <h6>Subject Information</h6>
+
+                        <div class="formgrid grid mb-4">
+                            <!-- Subject Name -->
+                            <div class="field col-12 md:col-6">
+                                <label for="name" class="font-bold">Subject Name*</label>
+                                <input type="text" pInputText id="name" [(ngModel)]="subject.name"
+                                       [disabled]="loading"
+                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !subject.name?.trim()}"/>
+                                <small class="p-error" *ngIf="submitted && !subject.name?.trim()">Subject name is required.</small>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="field col-12">
+                                <label for="description" class="font-bold">Description</label>
+                                <textarea pInputTextarea id="description" [(ngModel)]="subject.description"
+                                          rows="5" [autoResize]="true" placeholder="Optional"
+                                          [disabled]="loading"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="field col-12 mt-4">
+                    <div class="flex justify-content-end">
+                        <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text mr-2"
+                                 (onClick)="cancel()" [disabled]="loading"></p-button>
+                        <p-button label="Reset" icon="pi pi-refresh" styleClass="p-button-secondary mr-2"
+                                 (onClick)="resetForm()" [disabled]="loading"></p-button>
+                        <p-button label="Create Subject" icon="pi pi-check"
+                                 (onClick)="createSubject()" [loading]="loading"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
