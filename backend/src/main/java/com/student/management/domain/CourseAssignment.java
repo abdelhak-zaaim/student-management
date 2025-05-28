@@ -1,6 +1,8 @@
 package com.student.management.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -31,6 +33,8 @@ public class CourseAssignment implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     @JoinColumn(name = "professor_id")
+    @JsonIgnoreProperties(value = { "user", "subjects" }, allowSetters = true)
+    @JsonIgnore
     private Professor professor;
 
     // Getters and setters

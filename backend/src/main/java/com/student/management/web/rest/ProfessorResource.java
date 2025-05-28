@@ -131,6 +131,36 @@ public class ProfessorResource {
     }
 
     /**
+     * {@code PUT  /professors/with-assignments} : Updates an existing professor with course assignments.
+     *
+     * @param dto the data transfer object containing professor and course assignment details.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body containing the updated course assignments.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PutMapping("/with-assignments")
+    public ResponseEntity<List<CourseAssignment>> updateProfessorWithAssignments(@RequestBody ProfessorWithCourseAssignmentsDTO dto) throws URISyntaxException {
+        LOG.debug("REST request to update Professor with course assignments : {}", dto);
+
+        if (dto.getId() == null) {
+            throw new BadRequestAlertException("Professor ID is required", ENTITY_NAME, "idrequired");
+        }
+
+        if (dto.getUser() == null) {
+            throw new BadRequestAlertException("User information is required", ENTITY_NAME, "userrequired");
+        }
+
+        if (dto.getSubjectGroups() == null || dto.getSubjectGroups().isEmpty()) {
+            throw new BadRequestAlertException("At least one subject group assignment is required", ENTITY_NAME, "subjectgroupsrequired");
+        }
+
+        List<CourseAssignment> assignments = professorService.updateWithCourseAssignments(dto);
+
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, dto.getId().toString()))
+            .body(assignments);
+    }
+
+    /**
      * {@code PATCH  /professors/:id} : Partial updates given fields of an existing professor, field will ignore if it is null
      *
      * @param id the id of the professor to save.

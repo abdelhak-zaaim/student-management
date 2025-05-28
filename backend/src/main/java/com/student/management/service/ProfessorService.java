@@ -147,6 +147,89 @@ public class ProfessorService {
     }
 
     /**
+     * Update a professor with course assignments.
+     * This method will update the professor information and replace existing course assignments.
+     *
+     * @param dto the data transfer object with professor and course assignment details.
+     * @return the list of updated course assignments.
+     */
+    @Transactional
+    public List<CourseAssignment> updateWithCourseAssignments(ProfessorWithCourseAssignmentsDTO dto) {
+        LOG.debug("Request to update Professor with course assignments : {}", dto);
+
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException("Professor ID cannot be null for update");
+        }
+
+        // Find the professor by ID
+        Optional<Professor> professorOpt = professorRepository.findById(dto.getId());
+        if (!professorOpt.isPresent()) {
+            throw new IllegalArgumentException("Professor not found with ID: " + dto.getId());
+        }
+
+        Professor professor = professorOpt.get();
+        User user = professor.getUser();
+
+        // Update user information if provided
+        if (dto.getUser() != null) {
+            if (dto.getUser().getFirstName() != null) {
+                user.setFirstName(dto.getUser().getFirstName());
+            }
+            if (dto.getUser().getLastName() != null) {
+                user.setLastName(dto.getUser().getLastName());
+            }
+            if (dto.getUser().getEmail() != null) {
+                user.setEmail(dto.getUser().getEmail());
+            }
+
+            // Save updated user
+            user = userRepository.save(user);
+            professor.setUser(user);
+            professor = professorRepository.save(professor);
+        }
+
+        // Delete existing course assignments for this professor
+        List<CourseAssignment> existingAssignments = courseAssignmentRepository.findByProfessorId(professor.getId());
+        for (CourseAssignment assignment : existingAssignments) {
+            courseAssignmentRepository.delete(assignment);
+        }
+
+        // Create new course assignments
+        List<CourseAssignment> updatedAssignments = new ArrayList<>();
+
+        if (dto.getSubjectGroups() != null) {
+            for (ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO subjectGroup : dto.getSubjectGroups()) {
+                // Get subject
+                Optional<Subject> subjectOpt = subjectRepository.findById(subjectGroup.getSubject().getId());
+
+                if (subjectOpt.isPresent()) {
+                    Subject subject = subjectOpt.get();
+
+                    // Create assignments for each student group
+                    for (ProfessorWithCourseAssignmentsDTO.StudentGroupDTO groupDto : subjectGroup.getStudentGroup()) {
+                        Optional<StudentGroup> groupOpt = studentGroupRepository.findById(groupDto.getId());
+
+                        if (groupOpt.isPresent()) {
+                            StudentGroup group = groupOpt.get();
+
+                            // Create and save course assignment
+                            CourseAssignment assignment = new CourseAssignment();
+                            assignment.setProfessor(professor);
+                            assignment.setSubject(subject);
+                            assignment.setStudentGroup(group);
+
+                            assignment = courseAssignmentRepository.save(assignment);
+                            updatedAssignments.add(assignment);
+                        }
+                    }
+                }
+            }
+        }
+
+        return updatedAssignments;
+    }
+
+    /**
      * Update a professor.
      *
      * @param professor the entity to save.

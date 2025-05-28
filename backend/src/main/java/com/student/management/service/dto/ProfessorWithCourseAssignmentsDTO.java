@@ -3,8 +3,17 @@ package com.student.management.service.dto;
 import java.util.List;
 
 public class ProfessorWithCourseAssignmentsDTO {
+    private Long id;
     private UserDTO user;
     private List<SubjectGroupAssignmentDTO> subjectGroups;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public UserDTO getUser() {
         return user;
