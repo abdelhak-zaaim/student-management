@@ -50,6 +50,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                                 .requestMatchers(mvc.pattern( "/api/authenticate")).permitAll()
+                                .requestMatchers(mvc.pattern("/api/dashboard/**")).hasAnyAuthority(AuthoritiesConstants.PROFESSOR,AuthoritiesConstants.ADMIN)
 
                                 .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/authenticate")).permitAll()
                                 .requestMatchers(mvc.pattern("/api/register")).permitAll()
