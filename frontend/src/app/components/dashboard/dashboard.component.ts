@@ -120,7 +120,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateRevenueChart() {
         if (this.monthlyRevenue && this.monthlyRevenue.length > 0) {
             const labels = this.monthlyRevenue.map(item => item.month || '');
-            const data = this.monthlyRevenue.map(item => item.amount || 0);
+            const data = this.monthlyRevenue.map(item => item.revenue || item.amount || 0);
 
             const documentStyle = getComputedStyle(document.documentElement);
 

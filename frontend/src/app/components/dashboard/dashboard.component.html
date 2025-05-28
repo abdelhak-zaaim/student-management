@@ -166,69 +166,19 @@
         <div class="card">
             <h5>Payment Status Distribution</h5>
             <div class="flex justify-content-center">
-                <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions" [style]="{'width': '100%', 'max-height': '300px'}"></p-chart>
+                <p-chart type="pie" [data]="pieChartData" [options]="pieChartOptions" ></p-chart>
             </div>
         </div>
 
         <div class="card">
-            <div class="flex align-items-center justify-content-between mb-4">
-                <h5>Professor Activities</h5>
-                <div>
-                    <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
-                    <p-menu #menu [popup]="true" [model]="items"></p-menu>
-                </div>
-            </div>
-
-            <p-timeline [value]="professorActivities" layout="vertical" styleClass="customized-timeline">
-                <ng-template pTemplate="marker" let-activity>
-                    <span class="flex w-2rem h-2rem align-items-center justify-content-center"
-                          [ngClass]="{'bg-primary': activity.type === 'CLASS', 'bg-success': activity.type === 'GRADING', 'bg-info': activity.type === 'OFFICE_HOURS'}"
-                          style="border-radius: 50%;">
-                        <i [ngClass]="{'pi pi-book': activity.type === 'CLASS', 'pi pi-check-square': activity.type === 'GRADING', 'pi pi-calendar': activity.type === 'OFFICE_HOURS'}"
-                           style="font-size: 1rem; color: white;"></i>
-                    </span>
-                </ng-template>
-                <ng-template pTemplate="content" let-activity>
-                    <div class="p-3 surface-card shadow-2 mb-3" style="border-radius: 8px;">
-                        <div class="flex flex-column">
-                            <span class="font-medium text-lg text-900">{{activity.title}}</span>
-                            <p class="line-height-3 text-700 my-2">{{activity.description}}</p>
-                            <div class="flex align-items-center">
-                                <i class="pi pi-clock text-500 mr-1"></i>
-                                <span class="text-500 font-medium">{{activity.time | date:'short'}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </ng-template>
-            </p-timeline>
+            <h5>Top Revenue by Student Group</h5>
+            <p-chart type="bar" [data]="studentGroupRevenueChartData" [options]="studentGroupRevenueChartOptions"
+                     height="250px"></p-chart>
         </div>
+
+
     </div>
 
-    <!-- Revenue Analysis -->
-    <div class="col-12">
-        <div class="card">
-            <h5>Revenue Analytics</h5>
-            <div class="grid">
-                <!-- Revenue by Payment Method -->
-                <div class="col-12 md:col-6">
-                    <div class="card mb-0">
-                        <h6>Revenue by Payment Method</h6>
-                        <p-chart type="doughnut" [data]="paymentMethodChartData" [options]="paymentMethodChartOptions"
-                            height="250px"></p-chart>
-                    </div>
-                </div>
-
-                <!-- Top Revenue by Student Group -->
-                <div class="col-12 md:col-6">
-                    <div class="card mb-0">
-                        <h6>Top Revenue by Student Group</h6>
-                        <p-chart type="bar" [data]="studentGroupRevenueChartData" [options]="studentGroupRevenueChartOptions"
-                            height="250px"></p-chart>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Students per Group -->
     <div class="col-12">
