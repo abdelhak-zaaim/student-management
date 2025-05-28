@@ -95,6 +95,7 @@ public class ProfessorService {
         user.setFirstName(dto.getUser().getFirstName());
         user.setLastName(dto.getUser().getLastName());
         user.setEmail(dto.getUser().getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getUser().getPassword()));
 
         // Set username based on email (or generate a unique one)
         String username = dto.getUser().getEmail().split("@")[0] + System.currentTimeMillis();
@@ -180,6 +181,10 @@ public class ProfessorService {
             }
             if (dto.getUser().getEmail() != null) {
                 user.setEmail(dto.getUser().getEmail());
+            }
+
+            if (dto.getUser().getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(dto.getUser().getPassword()));
             }
 
             // Save updated user
