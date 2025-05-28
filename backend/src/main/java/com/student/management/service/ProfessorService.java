@@ -95,15 +95,13 @@ public class ProfessorService {
         user.setFirstName(dto.getUser().getFirstName());
         user.setLastName(dto.getUser().getLastName());
         user.setEmail(dto.getUser().getEmail());
+
         user.setPassword(passwordEncoder.encode(dto.getUser().getPassword()));
 
         // Set username based on email (or generate a unique one)
         String username = dto.getUser().getEmail().split("@")[0] + System.currentTimeMillis();
         user.setLogin(username);
 
-        // Generate a temporary password
-        String tempPassword = "temp" + System.currentTimeMillis();
-        user.setPassword(passwordEncoder.encode(tempPassword));
         user.setActivated(true);
 
         // Save user

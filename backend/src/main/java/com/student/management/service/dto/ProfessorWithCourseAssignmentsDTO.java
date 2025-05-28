@@ -65,7 +65,7 @@ public class ProfessorWithCourseAssignmentsDTO {
             return password;
         }
 
-        public void setPassword(String passowrd) {
+        public void setPassword(String password) {
             this.password = password;
         }
     }
