@@ -3,14 +3,16 @@ import { Professor } from '../../../models/professor.model';
 import { ProfessorService } from '../professor.service';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
-import {GroupService} from "../../group/group.service";
+import { GroupService } from "../../group/group.service";
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { Group } from '../../../models/group.model';
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
-    providers: [GroupService]
-
+  providers: [GroupService]
 })
 export class ListComponent implements OnInit {
   professors: Professor[] | null = null;
@@ -23,27 +25,22 @@ export class ListComponent implements OnInit {
   deleteProfessorsDialog = false;
   submitted = false;
   cols: any[] = [];
-    groupOptions = [
-        { id: 1, name: 'Group A' },
-        { id: 2, name: 'Group B' },
-        { id: 3, name: 'Group C' }
-    ];
 
-    subjectOptions = [
-        { id: 1, name: 'Mathematics' },
-        { id: 2, name: 'Physics' },
-        { id: 3, name: 'Chemistry' }
-    ];
-
+  groupOptions: any[] = [];
+  subjectOptions: any[] = [];
+  subjectGroupRecords: { subject: any; studentGroup: any[] }[] = [];
+  loading = false;
 
   constructor(
     private professorService: ProfessorService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.loadProfessors();
-    this.loadProfessorGroups();
+    this.loadGroups();
+    this.loadSubjects();
 
     this.cols = [
       { field: 'id', header: 'ID' },
@@ -54,7 +51,7 @@ export class ListComponent implements OnInit {
   }
 
   loadProfessors(): void {
-      console.log("Loading professors...");
+    console.log("Loading professors...");
     this.professorService.findAll().subscribe(
       response => {
         this.professors = response.body || [];
@@ -72,10 +69,60 @@ export class ListComponent implements OnInit {
     );
   }
 
-  loadProfessorGroups(): void {
-    // Implement loading professor groups
-    // For now using empty array
-    this.professorGroups = [];
+  /**
+   * Load groups for the dropdown
+   */
+  loadGroups(): void {
+    this.loading = true;
+
+    // Make sure we're using the correct API URL for groups
+    const url = `${environment.apiBaseUrl}/student-groups`;
+
+    this.http.get<Group[]>(url, { observe: 'response' }).subscribe(
+      response => {
+        this.groupOptions = response.body || [];
+        console.log('Loaded groups for dropdown:', this.groupOptions);
+        this.loading = false;
+      },
+      error => {
+        console.error('Error loading groups:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load groups: ' + (error.message || error),
+          life: 3000
+        });
+        this.loading = false;
+      }
+    );
+  }
+
+  /**
+   * Load subjects for the dropdown
+   */
+  loadSubjects(): void {
+    this.loading = true;
+
+    // Make sure we're using the correct API URL for subjects
+    const url = `${environment.apiBaseUrl}/subjects`;
+
+    this.http.get<any[]>(url, { observe: 'response' }).subscribe(
+      response => {
+        this.subjectOptions = response.body || [];
+        console.log('Loaded subjects for dropdown:', this.subjectOptions);
+        this.loading = false;
+      },
+      error => {
+        console.error('Error loading subjects:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load subjects: ' + (error.message || error),
+          life: 3000
+        });
+        this.loading = false;
+      }
+    );
   }
 
   openNew(): void {
@@ -208,20 +255,17 @@ export class ListComponent implements OnInit {
       return;
     }
 
-
-
     if (!this.isEmailValid()) {
       return;
     }
-
 
     if (!this.professor.user?.email || this.professor.user.email.trim() === '') {
       return; // Optional field, so we can skip validation
     }
 
-      if (this.subjectGroupRecords.some(record => !record.subject || record.studentGroup.length === 0)) {
-          return;
-      }
+    if (this.subjectGroupRecords.some(record => !record.subject || record.studentGroup.length === 0)) {
+      return;
+    }
 
     const professorToSave: Professor = {
       id: this.professor.id,
@@ -232,10 +276,10 @@ export class ListComponent implements OnInit {
         lastName: this.professor.user.lastName,
         email: this.professor.user.email
       },
-        subjectGroups: this.subjectGroupRecords.map(record => ({
-            subject: record.subject || null,
-            studentGroup: record.studentGroup || []
-        }))
+      subjectGroups: this.subjectGroupRecords.map(record => ({
+        subject: record.subject || null,
+        studentGroup: record.studentGroup || []
+      }))
     };
 
     if (professorToSave.id) {
@@ -313,15 +357,11 @@ export class ListComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
+  addSubjectGroupRecord(): void {
+    this.subjectGroupRecords.push({ subject: null, studentGroup: [] });
+  }
 
-
-    subjectGroupRecords: { subject: any; studentGroup: any[] }[] = [];
-
-    addSubjectGroupRecord(): void {
-        this.subjectGroupRecords.push({ subject: null, studentGroup: [] });
-    }
-
-    removeSubjectGroupRecord(index: number): void {
-        this.subjectGroupRecords.splice(index, 1);
-    }
+  removeSubjectGroupRecord(index: number): void {
+    this.subjectGroupRecords.splice(index, 1);
+  }
 }

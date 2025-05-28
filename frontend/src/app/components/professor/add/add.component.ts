@@ -82,29 +82,17 @@ export class AddComponent implements OnInit {
     this.http.get<any[]>(url, { observe: 'response' }).subscribe(
       response => {
         this.subjectOptions = response.body || [];
-        // If the API doesn't return subjects yet, use mock data
-        if (this.subjectOptions.length === 0) {
-          this.subjectOptions = [
-            { id: 1, name: 'Mathematics' },
-            { id: 2, name: 'Physics' },
-            { id: 3, name: 'Chemistry' },
-            { id: 4, name: 'Biology' },
-            { id: 5, name: 'Computer Science' }
-          ];
-        }
         console.log('Loaded subjects for dropdown:', this.subjectOptions);
         this.loading = false;
       },
       error => {
         console.error('Error loading subjects:', error);
-        // Use mock data if API fails
-        this.subjectOptions = [
-          { id: 1, name: 'Mathematics' },
-          { id: 2, name: 'Physics' },
-          { id: 3, name: 'Chemistry' },
-          { id: 4, name: 'Biology' },
-          { id: 5, name: 'Computer Science' }
-        ];
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load subjects: ' + (error.message || error),
+          life: 3000
+        });
         this.loading = false;
       }
     );
