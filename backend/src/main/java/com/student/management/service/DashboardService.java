@@ -1,11 +1,9 @@
 package com.student.management.service;
 
 import com.student.management.domain.Payment;
+import com.student.management.domain.StudentGroup;
 import com.student.management.domain.enumeration.Status;
-import com.student.management.repository.CourseAssignmentRepository;
-import com.student.management.repository.PaymentRepository;
-import com.student.management.repository.ProfessorRepository;
-import com.student.management.repository.StudentRepository;
+import com.student.management.repository.*;
 import com.student.management.service.dto.DashboardDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,15 +31,21 @@ public class DashboardService {
     private final ProfessorRepository professorRepository;
     private final PaymentRepository paymentRepository;
     private final CourseAssignmentRepository courseAssignmentRepository;
+    private final StudentGroupRepository studentGroupRepository;
+    private final SubjectRepository subjectRepository;
 
     public DashboardService(StudentRepository studentRepository,
                           ProfessorRepository professorRepository,
                           PaymentRepository paymentRepository,
-                          CourseAssignmentRepository courseAssignmentRepository) {
+                          CourseAssignmentRepository courseAssignmentRepository,
+                          StudentGroupRepository studentGroupRepository,
+                          SubjectRepository subjectRepository) {
         this.studentRepository = studentRepository;
         this.professorRepository = professorRepository;
         this.paymentRepository = paymentRepository;
         this.courseAssignmentRepository = courseAssignmentRepository;
+        this.studentGroupRepository = studentGroupRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -62,8 +65,33 @@ public class DashboardService {
         // Total Professors
         dashboardDTO.setTotalProfessors(professorRepository.count());
 
+        // Total Student Groups
+        dashboardDTO.setTotalStudentGroups(studentGroupRepository.count());
+
+        // Total Subjects
+        dashboardDTO.setTotalSubjects(subjectRepository.count());
+
+        // All payments
+        List<Payment> allPayments = paymentRepository.findAll();
+
+        // Total Payments count
+        dashboardDTO.setTotalPayments((long) allPayments.size());
+
+        // Pending Payments count
+        long pendingPaymentsCount = allPayments.stream()
+            .filter(payment -> Status.PENDING.equals(payment.getStatus()))
+            .count();
+        dashboardDTO.setPendingPayments(pendingPaymentsCount);
+
+        // Average Payment Amount
+        Double averagePayment = allPayments.stream()
+            .mapToDouble(Payment::getAmount)
+            .average()
+            .orElse(0.0);
+        dashboardDTO.setAveragePaymentAmount(averagePayment);
+
         // Total Revenue (from all accepted payments)
-        List<Payment> acceptedPayments = paymentRepository.findAll().stream()
+        List<Payment> acceptedPayments = allPayments.stream()
             .filter(payment -> Status.ACCEPTED.equals(payment.getStatus()))
             .collect(Collectors.toList());
 
@@ -113,6 +141,106 @@ public class DashboardService {
 
         dashboardDTO.setRevenueByMonth(revenueByMonth);
 
+        // Generate Revenue Overview
+        DashboardDTO.RevenueOverviewDTO revenueOverview = new DashboardDTO.RevenueOverviewDTO();
+
+        // Set total revenue
+        revenueOverview.setTotalRevenue(totalRevenue);
+
+        // Current month revenue
+        LocalDate firstDayCurrentMonth = today.withDayOfMonth(1);
+        Instant startCurrentMonth = firstDayCurrentMonth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        Double currentMonthRevenue = acceptedPayments.stream()
+            .filter(payment -> !payment.getDate().isBefore(startCurrentMonth))
+            .mapToDouble(Payment::getAmount)
+            .sum();
+        revenueOverview.setCurrentMonthRevenue(currentMonthRevenue);
+
+        // Previous month revenue (we already calculated it above)
+        revenueOverview.setPreviousMonthRevenue(lastMonthRevenue);
+
+        // Month over month change (percentage)
+        Double monthOverMonthChange = 0.0;
+        if (lastMonthRevenue > 0) {
+            monthOverMonthChange = ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+        }
+        revenueOverview.setMonthOverMonthChange(monthOverMonthChange);
+
+        // Average monthly revenue (for the last 6 months)
+        List<Double> lastSixMonthsRevenue = new ArrayList<>();
+
+        for (int i = 0; i < 6; i++) {
+            LocalDate firstDayOfMonth = today.minusMonths(i).withDayOfMonth(1);
+            LocalDate lastDayOfMonth = i > 0
+                ? firstDayOfMonth.plusMonths(1).minusDays(1)
+                : today;
+
+            Instant startOfMonth = firstDayOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+            Instant endOfMonth = lastDayOfMonth.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+            Double monthlyRevenue = acceptedPayments.stream()
+                .filter(payment -> !payment.getDate().isBefore(startOfMonth) && payment.getDate().isBefore(endOfMonth))
+                .mapToDouble(Payment::getAmount)
+                .sum();
+
+            lastSixMonthsRevenue.add(monthlyRevenue);
+        }
+
+        Double averageMonthlyRevenue = lastSixMonthsRevenue.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
+        revenueOverview.setAverageMonthlyRevenue(averageMonthlyRevenue);
+
+        // Top revenue by student group
+        Map<String, Double> revenueByStudentGroup = new HashMap<>();
+        Map<Long, String> groupIdToNameMap = new HashMap<>();
+
+        // Create a map of group ID to name for faster lookups
+        studentGroupRepository.findAll().forEach(group ->
+            groupIdToNameMap.put(group.getId(), group.getName())
+        );
+
+        // Group payments by student group and calculate total revenue
+        Map<Long, List<Payment>> paymentsByStudentGroup = acceptedPayments.stream()
+            .filter(payment -> payment.getStudent() != null && payment.getStudent().getStudentGroup() != null)
+            .collect(Collectors.groupingBy(payment -> payment.getStudent().getStudentGroup().getId()));
+
+        paymentsByStudentGroup.forEach((groupId, payments) -> {
+            Double groupRevenue = payments.stream()
+                .mapToDouble(Payment::getAmount)
+                .sum();
+
+            String groupName = groupIdToNameMap.getOrDefault(groupId, "Unknown Group");
+            revenueByStudentGroup.put(groupName, groupRevenue);
+        });
+
+        // Get top 5 groups by revenue
+        Map<String, Double> topRevenueByGroup = revenueByStudentGroup.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .limit(5)
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (e1, e2) -> e1,
+                LinkedHashMap::new
+            ));
+
+        revenueOverview.setTopRevenueByStudentGroup(topRevenueByGroup);
+
+        // Since we don't have payment method in the Payment entity, we'll create a placeholder
+        // For a real implementation, you would group by payment.getPaymentMethod() or similar
+        Map<String, Double> revenueByPaymentMethod = new HashMap<>();
+        revenueByPaymentMethod.put("Credit Card", totalRevenue * 0.65); // Placeholder data
+        revenueByPaymentMethod.put("Bank Transfer", totalRevenue * 0.25); // Placeholder data
+        revenueByPaymentMethod.put("Cash", totalRevenue * 0.1); // Placeholder data
+
+        revenueOverview.setRevenueByPaymentMethod(revenueByPaymentMethod);
+
+        // Set the revenue overview to dashboard DTO
+        dashboardDTO.setRevenueOverview(revenueOverview);
+
         // Last 10 payments
         List<Payment> lastPayments = paymentRepository.findAll(
             PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "date"))
@@ -133,6 +261,26 @@ public class DashboardService {
 
         dashboardDTO.setLastPayments(lastPaymentsData);
 
+        // Students per group
+        Map<String, Long> studentsPerGroup = new HashMap<>();
+        List<StudentGroup> allGroups = studentGroupRepository.findAll();
+
+        for (StudentGroup group : allGroups) {
+            long studentCount = group.getStudents().size();
+            studentsPerGroup.put(group.getName(), studentCount);
+        }
+        dashboardDTO.setStudentsPerGroup(studentsPerGroup);
+
+        // Payments per status
+        Map<String, Long> paymentsPerStatus = new HashMap<>();
+        Arrays.stream(Status.values()).forEach(status -> {
+            long count = allPayments.stream()
+                .filter(payment -> status.equals(payment.getStatus()))
+                .count();
+            paymentsPerStatus.put(status.name(), count);
+        });
+        dashboardDTO.setPaymentsPerStatus(paymentsPerStatus);
+
         // Professor activities (last assignments)
         List<Map<String, Object>> professorActivities = courseAssignmentRepository.findAll(
             PageRequest.of(0, 10)
@@ -145,6 +293,7 @@ public class DashboardService {
             activity.put("professorName", ca.getProfessor().getUser().getFirstName() + " " + ca.getProfessor().getUser().getLastName());
             activity.put("subjectName", ca.getSubject().getName());
             activity.put("studentGroupId", ca.getStudentGroup().getId());
+            activity.put("studentGroupName", ca.getStudentGroup().getName());
             return activity;
         })
         .collect(Collectors.toList());
@@ -245,6 +394,7 @@ public class DashboardService {
             activity.put("professorName", ca.getProfessor().getUser().getFirstName() + " " + ca.getProfessor().getUser().getLastName());
             activity.put("subjectName", ca.getSubject().getName());
             activity.put("studentGroupId", ca.getStudentGroup().getId());
+            activity.put("studentGroupName", ca.getStudentGroup().getName());
             return activity;
         })
         .collect(Collectors.toList());
