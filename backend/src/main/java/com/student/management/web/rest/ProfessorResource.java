@@ -4,6 +4,7 @@ import com.student.management.domain.CourseAssignment;
 import com.student.management.domain.Professor;
 import com.student.management.repository.ProfessorRepository;
 import com.student.management.service.ProfessorService;
+import com.student.management.service.dto.ProfessorDTO;
 import com.student.management.service.dto.ProfessorWithCourseAssignmentsDTO;
 import com.student.management.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -166,38 +167,33 @@ public class ProfessorResource {
     }
 
     /**
-     * {@code GET  /professors} : get all the professors.
+     * {@code GET  /professors} : get all the professors with their course assignments.
      *
      * @param pageable the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of professors in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of professors with their course assignments in body.
      */
     @GetMapping("")
-    public ResponseEntity<List<Professor>> getAllProfessors(
+    public ResponseEntity<List<ProfessorDTO>> getAllProfessors(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
     ) {
-        LOG.debug("REST request to get a page of Professors");
-        Page<Professor> page;
-        if (eagerload) {
-            page = professorService.findAllWithEagerRelationships(pageable);
-        } else {
-            page = professorService.findAll(pageable);
-        }
+        LOG.debug("REST request to get a page of Professors with course assignments");
+        Page<ProfessorDTO> page = professorService.findAllWithCourseAssignments(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**
-     * {@code GET  /professors/:id} : get the "id" professor.
+     * {@code GET  /professors/:id} : get the "id" professor with course assignments.
      *
      * @param id the id of the professor to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the professor, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the professor with course assignments, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Professor> getProfessor(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get Professor : {}", id);
-        Optional<Professor> professor = professorService.findOne(id);
+    public ResponseEntity<ProfessorDTO> getProfessor(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Professor with course assignments : {}", id);
+        Optional<ProfessorDTO> professor = professorService.findOneWithCourseAssignments(id);
         return ResponseUtil.wrapOrNotFound(professor);
     }
 

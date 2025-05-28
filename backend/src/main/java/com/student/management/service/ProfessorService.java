@@ -10,14 +10,19 @@ import com.student.management.repository.ProfessorRepository;
 import com.student.management.repository.StudentGroupRepository;
 import com.student.management.repository.SubjectRepository;
 import com.student.management.repository.UserRepository;
+import com.student.management.service.dto.ProfessorDTO;
+import com.student.management.service.dto.ProfessorWithAssignmentsDTO;
 import com.student.management.service.dto.ProfessorWithCourseAssignmentsDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -183,6 +188,47 @@ public class ProfessorService {
      */
     public Page<Professor> findAllWithEagerRelationships(Pageable pageable) {
         return professorRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    /**
+     * Get all professors with their course assignments.
+     *
+     * @param pageable the pagination information
+     * @return page of professors with their course assignments
+     */
+    @Transactional(readOnly = true)
+    public Page<ProfessorDTO> findAllWithCourseAssignments(Pageable pageable) {
+        LOG.debug("Request to get all Professors with course assignments");
+
+        // Get professors with eager relationships
+        Page<Professor> professors = findAllWithEagerRelationships(pageable);
+
+        // Convert to list and associate course assignments
+        List<ProfessorDTO> result = professors.getContent().stream()
+            .map(professor -> {
+                List<CourseAssignment> assignments = courseAssignmentRepository.findByProfessorId(professor.getId());
+                return new ProfessorDTO(professor, assignments);
+            })
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(result, pageable, professors.getTotalElements());
+    }
+
+    /**
+     * Get one professor by id with their course assignments.
+     *
+     * @param id the id of the entity
+     * @return the professor with course assignments
+     */
+    @Transactional(readOnly = true)
+    public Optional<ProfessorDTO> findOneWithCourseAssignments(Long id) {
+        LOG.debug("Request to get Professor with course assignments: {}", id);
+
+        return professorRepository.findOneWithEagerRelationships(id)
+            .map(professor -> {
+                List<CourseAssignment> assignments = courseAssignmentRepository.findByProfessorId(professor.getId());
+                return new ProfessorDTO(professor, assignments);
+            });
     }
 
     /**
