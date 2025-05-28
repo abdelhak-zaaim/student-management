@@ -50,6 +50,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                                 .requestMatchers(mvc.pattern( "/api/authenticate")).permitAll()
+
                                 .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/authenticate")).permitAll()
                                 .requestMatchers(mvc.pattern("/api/register")).permitAll()
                                 .requestMatchers(mvc.pattern("/api/activate")).permitAll()
@@ -73,7 +74,20 @@ public class SecurityConfiguration {
                                 .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                                 .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(withDefaults())
+                        // Skip JWT verification for authentication endpoints
+                        .bearerTokenResolver(request -> {
+                            String path = request.getRequestURI();
+                            if (path.equals("/api/authenticate") ||
+                                    path.equals("/api/register") ||
+                                    path.startsWith("/api/activate") ||
+                                    path.startsWith("/api/account/reset-password")) {
+                                return null;
+                            }
+                            return new org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver().resolve(request);
+                        })
+                );
         return http.build();
     }
 
