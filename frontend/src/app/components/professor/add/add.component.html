@@ -44,33 +44,33 @@
                     </div>
                 </div>
 
-                <!-- Subjects and Groups Section -->
+                <!-- Course Assignments Section -->
                 <div class="col-12 mt-4">
                     <div class=" mb-0 p-0">
-                        <h6>Subject and Group Assignments*</h6>
+                        <h6>Course Assignments*</h6>
                         <p>Assign the professor to teach subjects for specific groups.</p>
 
-                        <div *ngFor="let record of subjectGroupRecords; let i = index" class="subject-group-record mb-4">
+                        <div *ngFor="let assignment of courseAssignments; let i = index" class="course-assignment-record mb-4">
                             <div class="formgrid grid mb-2">
                                 <div class="field col-12 md:col-5">
                                     <label for="subject-{{i}}" class="font-bold">Subject*</label>
-                                    <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="record.subject"
+                                    <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="assignment.subject"
                                                 optionLabel="name" dataKey="id" [filter]="true" filterBy="name"
                                                 placeholder="Select Subject" [disabled]="loading"
-                                                [ngClass]="{'ng-invalid ng-dirty': submitted && !record.subject}">
+                                                [ngClass]="{'ng-invalid ng-dirty': submitted && !assignment.subject}">
                                     </p-dropdown>
-                                    <small class="p-error" *ngIf="submitted && !record.subject">Subject is required.</small>
+                                    <small class="p-error" *ngIf="submitted && !assignment.subject">Subject is required.</small>
                                 </div>
 
                                 <div class="field col-12 md:col-7">
-                                    <label for="groups-{{i}}" class="font-bold">Groups*</label>
-                                    <p-multiSelect id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="record.studentGroup"
-                                                   optionLabel="name" dataKey="id"
-                                                   placeholder="Select Groups" [disabled]="loading"
-                                                   [ngClass]="{'ng-invalid ng-dirty': submitted && (!record.studentGroup || record.studentGroup.length === 0)}">
-                                    </p-multiSelect>
-                                    <small class="p-error" *ngIf="submitted && (!record.studentGroup || record.studentGroup.length === 0)">
-                                        At least one group is required.
+                                    <label for="groups-{{i}}" class="font-bold">Group*</label>
+                                    <p-dropdown id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="assignment.studentGroup"
+                                               optionLabel="name" dataKey="id"
+                                               placeholder="Select Group" [disabled]="loading"
+                                               [ngClass]="{'ng-invalid ng-dirty': submitted && !assignment.studentGroup}">
+                                    </p-dropdown>
+                                    <small class="p-error" *ngIf="submitted && !assignment.studentGroup">
+                                        Group is required.
                                     </small>
                                 </div>
                             </div>
@@ -78,17 +78,17 @@
                             <div class="flex justify-content-end">
                                 <button pButton pRipple type="button" icon="pi pi-trash"
                                         label="Remove" class="p-button-outlined p-button-danger"
-                                        [disabled]="loading || subjectGroupRecords.length <= 1"
-                                        (click)="removeSubjectGroupRecord(i)">
+                                        [disabled]="loading || courseAssignments.length <= 1"
+                                        (click)="removeCourseAssignment(i)">
                                 </button>
                             </div>
                         </div>
 
                         <div class="flex justify-content-start mb-4">
                             <button pButton pRipple type="button" icon="pi pi-plus"
-                                    label="Add Another Subject" class="p-button-outlined"
+                                    label="Add Another Course Assignment" class="p-button-outlined"
                                     [disabled]="loading"
-                                    (click)="addSubjectGroupRecord()">
+                                    (click)="addCourseAssignment()">
                             </button>
                         </div>
                     </div>

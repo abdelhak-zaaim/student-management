@@ -22,6 +22,7 @@ export class ProfessorService {
 
     /** POST /professors */
     create(professor: Professor): Observable<EntityResponseType> {
+        // Ensure we get a full entity response with all fields populated
         return this.http.post<Professor>(this.resourceUrl, professor, { observe: 'response' });
     }
 

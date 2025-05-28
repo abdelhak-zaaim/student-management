@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Professor } from '../../../models/professor.model';
+import { Professor, CourseAssignment } from '../../../models/professor.model';
 import { ProfessorService } from '../professor.service';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -7,6 +7,7 @@ import { GroupService } from "../../group/group.service";
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Group } from '../../../models/group.model';
+import { Subject } from '../../../models/subject.model';
 
 @Component({
   selector: 'app-list',
@@ -18,7 +19,6 @@ export class ListComponent implements OnInit {
   professors: Professor[] | null = null;
   professor: Professor = { user: { firstName: '', lastName: '', email: '' } };
   selectedProfessors: Professor[] = [];
-  professorGroups: any[] = []; // Replace with proper type if available
 
   professorDialog = false;
   deleteProfessorDialog = false;
@@ -26,9 +26,9 @@ export class ListComponent implements OnInit {
   submitted = false;
   cols: any[] = [];
 
-  groupOptions: any[] = [];
-  subjectOptions: any[] = [];
-  subjectGroupRecords: { subject: any; studentGroup: any[] }[] = [];
+  groupOptions: Group[] = [];
+  subjectOptions: Subject[] = [];
+  courseAssignments: CourseAssignment[] = [];
   loading = false;
 
   constructor(
@@ -48,6 +48,55 @@ export class ListComponent implements OnInit {
       { field: 'user.lastName', header: 'Last Name' },
       { field: 'user.email', header: 'Email' }
     ];
+
+    // Check if a new professor was created in the add component
+    this.checkForNewlyCreatedProfessor();
+  }
+
+  /**
+   * Check if there's a newly created professor in session storage
+   * and add it to the professors list if found
+   */
+  checkForNewlyCreatedProfessor(): void {
+    const newlyCreatedProfessorJson = sessionStorage.getItem('newlyCreatedProfessor');
+
+    if (newlyCreatedProfessorJson) {
+      try {
+        // Parse the stored professor data
+        const newlyCreatedInfo = JSON.parse(newlyCreatedProfessorJson);
+
+        if (newlyCreatedInfo.action === 'created') {
+          // Fetch the full professor details including course assignments
+          this.professorService.find(newlyCreatedInfo.id).subscribe(
+            response => {
+              const fullProfessor = response.body;
+
+              if (fullProfessor && this.professors) {
+                // Check if this professor is already in the list
+                const exists = this.professors.some(p => p.id === fullProfessor.id);
+
+                if (!exists) {
+                  // Add the new professor to the beginning of the list for visibility
+                  this.professors.unshift(fullProfessor);
+                }
+
+                // Highlight animation could be added here if desired
+              }
+
+              // Clear the session storage to avoid adding duplicates on refreshes
+              sessionStorage.removeItem('newlyCreatedProfessor');
+            },
+            error => {
+              console.error('Error fetching new professor details:', error);
+              sessionStorage.removeItem('newlyCreatedProfessor');
+            }
+          );
+        }
+      } catch (error) {
+        console.error('Error parsing newly created professor data:', error);
+        sessionStorage.removeItem('newlyCreatedProfessor');
+      }
+    }
   }
 
   loadProfessors(): void {
@@ -106,7 +155,7 @@ export class ListComponent implements OnInit {
     // Make sure we're using the correct API URL for subjects
     const url = `${environment.apiBaseUrl}/subjects`;
 
-    this.http.get<any[]>(url, { observe: 'response' }).subscribe(
+    this.http.get<Subject[]>(url, { observe: 'response' }).subscribe(
       response => {
         this.subjectOptions = response.body || [];
         console.log('Loaded subjects for dropdown:', this.subjectOptions);
@@ -126,9 +175,11 @@ export class ListComponent implements OnInit {
   }
 
   openNew(): void {
-    this.professor = { user: { firstName: '', lastName: '', email: '' } };
+    this.professor = { user: { firstName: '', lastName: '', email: '' }, courseAssignments: [] };
+    this.courseAssignments = [];
     this.submitted = false;
     this.professorDialog = true;
+    this.addCourseAssignment();
   }
 
   editProfessor(professor: Professor): void {
@@ -136,6 +187,27 @@ export class ListComponent implements OnInit {
       ...professor,
       user: { ...professor.user }
     };
+
+    // Clear existing assignments and copy the professor's assignments
+    this.courseAssignments = [];
+
+    if (professor.courseAssignments && professor.courseAssignments.length > 0) {
+      // Make sure both subject and groups are properly linked to their respective options
+      professor.courseAssignments.forEach(assignment => {
+        const matchingSubject = this.subjectOptions.find(s => s.id === assignment.subject.id);
+        const matchingGroup = this.groupOptions.find(g => g.id === assignment.studentGroup.id);
+
+        this.courseAssignments.push({
+          id: assignment.id,
+          subject: matchingSubject || assignment.subject,
+          studentGroup: matchingGroup || assignment.studentGroup
+        });
+      });
+    } else {
+      // Add an empty assignment if none exist
+      this.addCourseAssignment();
+    }
+
     this.professorDialog = true;
   }
 
@@ -245,7 +317,6 @@ export class ListComponent implements OnInit {
   onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '');
-    //this.professor.phone = input.value;
   }
 
   saveProfessor(): void {
@@ -263,26 +334,27 @@ export class ListComponent implements OnInit {
       return; // Optional field, so we can skip validation
     }
 
-    if (this.subjectGroupRecords.some(record => !record.subject || record.studentGroup.length === 0)) {
+    if (this.courseAssignments.some(assignment => !assignment.subject || !assignment.studentGroup)) {
       return;
     }
 
     const professorToSave: Professor = {
       id: this.professor.id,
-
       user: {
         id: this.professor.user.id,
         firstName: this.professor.user.firstName,
         lastName: this.professor.user.lastName,
         email: this.professor.user.email
       },
-      subjectGroups: this.subjectGroupRecords.map(record => ({
-        subject: record.subject || null,
-        studentGroup: record.studentGroup || []
-      }))
+      courseAssignments: this.courseAssignments
     };
 
+    // Hide dialog immediately to improve perceived performance
+    this.professorDialog = false;
+    this.loading = true;
+
     if (professorToSave.id) {
+      // Update existing professor
       this.professorService.update(professorToSave).subscribe(
         response => {
           let updatedProfessor = response.body || professorToSave;
@@ -301,10 +373,11 @@ export class ListComponent implements OnInit {
             life: 3000
           });
 
-          this.professorDialog = false;
+          this.loading = false;
           this.professor = { user: { firstName: '', lastName: '', email: '' } };
         },
         error => {
+          this.loading = false;
           console.error('Error updating professor:', error);
           this.messageService.add({
             severity: 'error',
@@ -315,6 +388,7 @@ export class ListComponent implements OnInit {
         }
       );
     } else {
+      // Create new professor
       this.professorService.create(professorToSave).subscribe(
         response => {
           const newProfessor = response.body || professorToSave;
@@ -332,10 +406,11 @@ export class ListComponent implements OnInit {
             life: 3000
           });
 
-          this.professorDialog = false;
+          this.loading = false;
           this.professor = { user: { firstName: '', lastName: '', email: '' } };
         },
         error => {
+          this.loading = false;
           console.error('Error creating professor:', error);
           this.messageService.add({
             severity: 'error',
@@ -357,11 +432,17 @@ export class ListComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  addSubjectGroupRecord(): void {
-    this.subjectGroupRecords.push({ subject: null, studentGroup: [] });
+  addCourseAssignment(): void {
+    this.courseAssignments.push({
+      subject: null as unknown as Subject,
+      studentGroup: null as unknown as Group
+    });
   }
 
-  removeSubjectGroupRecord(index: number): void {
-    this.subjectGroupRecords.splice(index, 1);
+  removeCourseAssignment(index: number): void {
+    this.courseAssignments.splice(index, 1);
+    if (this.courseAssignments.length === 0) {
+      this.addCourseAssignment();
+    }
   }
 }

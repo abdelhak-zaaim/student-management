@@ -22,7 +22,7 @@
             </p-toolbar>
 
             <p-table #dt [value]="professors!" [columns]="cols" responsiveLayout="scroll" [rows]="10"
-                     [globalFilterFields]="['user.firstName','user.lastName','phone']"
+                     [globalFilterFields]="['user.firstName','user.lastName','user.email']"
                      [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                      [(selection)]="selectedProfessors" selectionMode="multiple" [rowHover]="true" dataKey="id"
@@ -61,8 +61,8 @@
                         <th pSortableColumn="user.lastName" class="spaced-column centered-column">Last Name
                             <p-sortIcon field="user.lastName"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="phone" class="spaced-column centered-column">Email
-                            <p-sortIcon field="phone"></p-sortIcon>
+                        <th pSortableColumn="user.email" class="spaced-column centered-column">Email
+                            <p-sortIcon field="user.email"></p-sortIcon>
                         </th>
 
                         <th class="actions-column centered-column">Actions</th>
@@ -141,27 +141,28 @@
                 </div>
 
                 <div class="field">
-                    <label>Subjects and Groups</label>
-                    <div *ngFor="let record of subjectGroupRecords; let i = index" class="subject-group-record">
+                    <label>Course Assignments</label>
+                    <div *ngFor="let assignment of courseAssignments; let i = index" class="course-assignment-record">
                         <div class="p-fluid grid">
                             <div class="col-6">
                                 <label for="subject-{{i}}">Subject</label>
-                                <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="record.subject"
+                                <p-dropdown id="subject-{{i}}" [options]="subjectOptions" [(ngModel)]="assignment.subject"
                                             optionLabel="name" placeholder="Select Subject" [showClear]="true">
                                 </p-dropdown>
                             </div>
                             <div class="col-6">
-                                <label for="groups-{{i}}">Groups</label>
-                                <p-multiSelect id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="record.studentGroup"
-                                               optionLabel="name" placeholder="Select Groups" [showClear]="true">
-                                </p-multiSelect>
+                                <label for="groups-{{i}}">Group</label>
+                                <p-dropdown id="groups-{{i}}" [options]="groupOptions" [(ngModel)]="assignment.studentGroup"
+                                           optionLabel="name" placeholder="Select Group" [showClear]="true">
+                                </p-dropdown>
                             </div>
                         </div>
                         <button pButton pRipple icon="pi pi-trash" class="p-button-text p-button-danger mt-2"
-                                (click)="removeSubjectGroupRecord(i)" label="Remove"></button>
+                                (click)="removeCourseAssignment(i)" label="Remove"
+                                [disabled]="courseAssignments.length <= 1"></button>
                     </div>
                     <button pButton pRipple icon="pi pi-plus" class="p-button-text p-button-success mt-3"
-                            (click)="addSubjectGroupRecord()" label="Add"></button>
+                            (click)="addCourseAssignment()" label="Add"></button>
                 </div>
             </ng-template>
 
