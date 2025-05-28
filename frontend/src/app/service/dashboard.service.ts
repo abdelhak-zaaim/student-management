@@ -3,6 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+export interface DashboardDTO {
+  totalStudents: number;
+  totalProfessors: number;
+  totalRevenue: number;
+  revenueLastMonth: number;
+  revenueByMonth: Array<{[key: string]: any}>;
+  lastPayments: Array<{[key: string]: any}>;
+  professorActivities: Array<{[key: string]: any}>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,10 +21,11 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-  getStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/dashboard/stats`);
+  getDashboardData(): Observable<DashboardDTO> {
+    return this.http.get<DashboardDTO>(`${this.apiUrl}/dashboard`);
   }
 
+  // Legacy methods that can be used as fallbacks if needed
   getStudentCount(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/students/count`);
   }
@@ -25,17 +36,5 @@ export class DashboardService {
 
   getGroupCount(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/groups/count`);
-  }
-
-  getPaymentStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/payments/stats`);
-  }
-
-  getRecentPayments(limit: number = 5): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/payments/recent?limit=${limit}`);
-  }
-
-  getMonthlyRevenue(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/payments/monthly-revenue`);
   }
 }

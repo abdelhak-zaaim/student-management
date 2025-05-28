@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { DashboardService } from '../../service/dashboard.service';
+import { DashboardService, DashboardDTO } from '../../service/dashboard.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -15,13 +15,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     chartOptions: any;
     subscription!: Subscription;
 
-    // Statistics
+    // Statistics from DashboardDTO
+    dashboardData: DashboardDTO | null = null;
     studentCount: number = 0;
     professorCount: number = 0;
-    groupCount: number = 0;
     totalRevenue: number = 0;
-    pendingPayments: number = 0;
+    revenueLastMonth: number = 0;
+    groupCount: number = 0;  // Not directly available in DTO
+    pendingPayments: number = 0; // Will need to calculate
     recentPayments: any[] = [];
+    professorActivities: any[] = [];
     loading: boolean = true;
     monthlyRevenue: any[] = [];
 
@@ -47,26 +50,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loadStats() {
         this.loading = true;
 
-        forkJoin({
-            students: this.dashboardService.getStudentCount(),
-            professors: this.dashboardService.getProfessorCount(),
-            groups: this.dashboardService.getGroupCount(),
-            payments: this.dashboardService.getPaymentStats(),
-            recentPayments: this.dashboardService.getRecentPayments(),
-            monthlyRevenue: this.dashboardService.getMonthlyRevenue()
-        }).subscribe({
-            next: (results) => {
-                this.studentCount = results.students;
-                this.professorCount = results.professors;
-                this.groupCount = results.groups;
+        this.dashboardService.getDashboardData().subscribe({
+            next: (data) => {
+                this.dashboardData = data;
 
-                if (results.payments) {
-                    this.totalRevenue = results.payments.totalRevenue || 0;
-                    this.pendingPayments = results.payments.pendingCount || 0;
-                }
+                // Map data from DTO
+                this.studentCount = data.totalStudents || 0;
+                this.professorCount = data.totalProfessors || 0;
+                this.totalRevenue = data.totalRevenue || 0;
+                this.revenueLastMonth = data.revenueLastMonth || 0;
 
-                this.recentPayments = results.recentPayments || [];
-                this.monthlyRevenue = results.monthlyRevenue || [];
+                // Map payments
+                this.recentPayments = data.lastPayments || [];
+
+                // Map professor activities
+                this.professorActivities = data.professorActivities || [];
+
+                // Calculate pending payments (if needed)
+                this.pendingPayments = this.recentPayments
+                    .filter(payment => payment.status === 'PENDING')
+                    .length;
+
+                // Map monthly revenue data for chart
+                this.monthlyRevenue = data.revenueByMonth || [];
+
+                // Load group count separately as it's not in the DTO
+                this.dashboardService.getGroupCount().subscribe(count => {
+                    this.groupCount = count;
+                });
 
                 this.updateRevenueChart();
                 this.loading = false;
@@ -80,8 +91,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     updateRevenueChart() {
         if (this.monthlyRevenue && this.monthlyRevenue.length > 0) {
-            const labels = this.monthlyRevenue.map(item => item.month);
-            const data = this.monthlyRevenue.map(item => item.amount);
+            const labels = this.monthlyRevenue.map(item => item.month || '');
+            const data = this.monthlyRevenue.map(item => item.amount || 0);
 
             const documentStyle = getComputedStyle(document.documentElement);
 
