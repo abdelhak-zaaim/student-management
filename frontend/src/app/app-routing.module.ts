@@ -15,6 +15,10 @@ import {AuthGuard} from "./guards/auth.guard";
 
                 children: [
                     {
+                        path: '',
+                        loadChildren: () => import('./components/dashboard/dashboard.module').then(m => m.DashboardModule)
+                    },
+                    {
                         path: 'students',
                         loadChildren: () => import('./components/student/student.module').then(m => m.StudentModule)
                     },
