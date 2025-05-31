@@ -4,6 +4,7 @@ import com.student.management.domain.User;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,25 +32,26 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
 
     /**
-     * Find all users with admin authority.
+     * Find all user logins with a specific authority.
+     * This query doesn't fetch the authorities collection, making it pagination-friendly.
      *
      * @param authority the authority name to filter by
      * @param pageable the pagination information
-     * @return page of users with admin authority
+     * @return page of user IDs with the specified authority
      */
-    @Query("SELECT u FROM User u JOIN u.authorities a WHERE a.name = :authority AND u.activated = true")
-    Page<User> findAllByAuthority(@Param("authority") String authority, Pageable pageable);
+    @Query("SELECT DISTINCT u.id FROM User u JOIN u.authorities a WHERE a.name = :authority AND u.activated = true")
+    Page<Long> findAllIdsByAuthority(@Param("authority") String authority, Pageable pageable);
 
     /**
-     * Find all users with admin authority with eager loading of authorities.
+     * Find all users by their IDs and eagerly load their authorities.
+     * This method is used after pagination to avoid collection fetch join issues.
      *
-     * @param authority the authority name to filter by
-     * @param pageable the pagination information
-     * @return page of users with admin authority and their authorities eagerly loaded
+     * @param ids the IDs of users to fetch
+     * @return list of users with their authorities eagerly loaded
      */
     @EntityGraph(attributePaths = "authorities")
-    @Query("SELECT u FROM User u JOIN u.authorities a WHERE a.name = :authority AND u.activated = true")
-    Page<User> findAllWithAuthoritiesByAuthority(@Param("authority") String authority, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE u.id IN :ids")
+    List<User> findAllWithAuthoritiesByIdIn(@Param("ids") Set<Long> ids);
 
     /**
      * Check if a user has a specific authority.

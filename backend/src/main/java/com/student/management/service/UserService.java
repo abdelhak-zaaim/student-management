@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -296,6 +297,9 @@ public class UserService {
 
     /**
      * Get all users with a specific authority.
+     * Uses a two-step approach to avoid Hibernate's "pagination over collection fetch" error:
+     * 1. First query to get paged user IDs
+     * 2. Second query to fetch the actual user entities with authorities
      *
      * @param authority the authority to filter by
      * @param pageable the pagination information
@@ -304,7 +308,24 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<AdminUserDTO> getUsersByAuthority(String authority, Pageable pageable) {
         LOG.debug("Request to get all users with authority: {}", authority);
-        return userRepository.findAllWithAuthoritiesByAuthority(authority, pageable).map(AdminUserDTO::new);
+
+        // Step 1: Get paginated list of user IDs
+        Page<Long> userIdPage = userRepository.findAllIdsByAuthority(authority, pageable);
+
+        if (userIdPage.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // Step 2: Fetch all users for those IDs with their authorities
+        List<User> users = userRepository.findAllWithAuthoritiesByIdIn(new HashSet<>(userIdPage.getContent()));
+
+        // Convert to DTOs
+        List<AdminUserDTO> userDTOs = users.stream()
+            .map(AdminUserDTO::new)
+            .collect(Collectors.toList());
+
+        // Build and return the final page
+        return new PageImpl<>(userDTOs, pageable, userIdPage.getTotalElements());
     }
 
     /**
