@@ -137,7 +137,6 @@
                 <div class="field">
                     <label for="email">Email</label>
                     <input type="email" pInputText id="email" [(ngModel)]="professor.user!.email"
-                           placeholder="Optional"
                            [ngClass]="{'ng-invalid ng-dirty': submitted && !isEmailValid()}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !isEmailValid()">
                         Please enter a valid email.

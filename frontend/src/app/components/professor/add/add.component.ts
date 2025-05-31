@@ -125,7 +125,7 @@ export class AddComponent implements OnInit {
      */
     isEmailValid(): boolean {
         if (!this.professor.user?.email || this.professor.user.email.trim() === '') {
-            return false; // Optional field
+            return false;
         }
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
