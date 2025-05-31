@@ -49,7 +49,7 @@ export class ListComponent implements OnInit {
   }
 
   editAdmin(admin: User): void {
-    this.router.navigate(['/admin/edit', admin.id]);
+    this.router.navigate(['/admin/edit', admin.login]);
   }
 
   deleteAdmin(admin: User): void {

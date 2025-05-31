@@ -16,8 +16,8 @@ export class AdminService {
     return this.http.get<User[]>(`${this.apiUrl}`);
   }
 
-  getAdmin(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  getAdmin(login: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${login}`);
   }
 
   createAdmin(admin: User): Observable<User> {

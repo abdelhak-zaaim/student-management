@@ -14,7 +14,7 @@ import { User } from '../../../models/user.model';
 export class UpdateComponent implements OnInit {
   adminForm: FormGroup;
   isEditMode = false;
-  adminId: number | null = null;
+  adminLogin: number | null = null;
   loading = false;
   submitting = false;
 
@@ -29,11 +29,11 @@ export class UpdateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    const login = this.route.snapshot.paramMap.get('login');
+    if (login) {
       this.isEditMode = true;
-      this.adminId = +id;
-      this.loadAdmin(this.adminId);
+      this.adminLogin = +login;
+      this.loadAdmin(login);
     }
   }
 
@@ -48,9 +48,9 @@ export class UpdateComponent implements OnInit {
     });
   }
 
-  private loadAdmin(id: number): void {
+  private loadAdmin(login: string): void {
     this.loading = true;
-    this.adminService.getAdmin(id).subscribe({
+    this.adminService.getAdmin(login).subscribe({
       next: (admin) => {
         this.adminForm.patchValue({
           firstName: admin.firstName,
@@ -85,8 +85,8 @@ export class UpdateComponent implements OnInit {
       ...this.adminForm.value
     };
 
-    if (this.isEditMode && this.adminId) {
-      adminData.id = this.adminId;
+    if (this.isEditMode && this.adminLogin) {
+      adminData.id = this.adminLogin;
       // If password is empty in edit mode, remove it
       if (!adminData.password) {
         delete adminData.password;

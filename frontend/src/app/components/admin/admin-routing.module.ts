@@ -10,7 +10,7 @@ import {AddComponent} from "../professor/add/add.component";
     imports: [RouterModule.forChild([
         { path: 'list', component: ListComponent },
         { path: 'add', component: UpdateComponent },
-        { path: 'edit/:id', component: UpdateComponent },
+        { path: 'edit/:login', component: UpdateComponent },
         { path: '', redirectTo: 'list', pathMatch: 'full' }
     ])],
   exports: [RouterModule]
