@@ -14,7 +14,7 @@ import { User } from '../../../models/user.model';
 export class UpdateComponent implements OnInit {
   adminForm: FormGroup;
   isEditMode = false;
-  adminLogin: number | null = null;
+  adminId: number | null = null;
   loading = false;
   submitting = false;
 
@@ -29,11 +29,11 @@ export class UpdateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const login = this.route.snapshot.paramMap.get('login');
-    if (login) {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
       this.isEditMode = true;
-      this.adminLogin = +login;
-      this.loadAdmin(login);
+      this.adminId = +id;
+      this.loadAdmin(this.adminId);
     }
   }
 
@@ -48,9 +48,9 @@ export class UpdateComponent implements OnInit {
     });
   }
 
-  private loadAdmin(login: string): void {
+  private loadAdmin(id: number): void {
     this.loading = true;
-    this.adminService.getAdmin(login).subscribe({
+    this.adminService.getAdmin(id).subscribe({
       next: (admin) => {
         this.adminForm.patchValue({
           firstName: admin.firstName,
@@ -59,6 +59,10 @@ export class UpdateComponent implements OnInit {
           login: admin.login,
           activated: admin.activated
         });
+        // If in edit mode, make password field optional
+          this.adminForm.get('password')?.clearValidators();
+
+
         // Password field is not populated for security reasons
         this.loading = false;
       },
@@ -85,8 +89,8 @@ export class UpdateComponent implements OnInit {
       ...this.adminForm.value
     };
 
-    if (this.isEditMode && this.adminLogin) {
-      adminData.id = this.adminLogin;
+    if (this.isEditMode && this.adminId) {
+      adminData.id = this.adminId;
       // If password is empty in edit mode, remove it
       if (!adminData.password) {
         delete adminData.password;
