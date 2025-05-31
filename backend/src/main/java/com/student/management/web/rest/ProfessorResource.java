@@ -8,14 +8,6 @@ import com.student.management.service.ProfessorService;
 import com.student.management.service.dto.ProfessorDTO;
 import com.student.management.service.dto.ProfessorWithCourseAssignmentsDTO;
 import com.student.management.web.rest.errors.BadRequestAlertException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +21,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 /**
  * REST controller for managing {@link com.student.management.domain.Professor}.
@@ -80,8 +76,8 @@ public class ProfessorResource {
                 List<CourseAssignment> assignments = professorService.saveWithCourseAssignments(dto);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                    .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, "new"))
-                    .body(assignments);
+                        .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, "new"))
+                        .body(assignments);
             } else if (professorData.containsKey("courseAssignments")) {
                 // Handle the courseAssignments format
                 // Extract user info for creating the professor
@@ -110,7 +106,7 @@ public class ProfessorResource {
 
                     // Get or create subject group assignment
                     ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO subjectGroup =
-                        subjectGroupMap.getOrDefault(subjectId, new ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO());
+                            subjectGroupMap.getOrDefault(subjectId, new ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO());
 
                     // Set subject info if not already set
                     if (subjectGroup.getSubject() == null) {
@@ -138,8 +134,8 @@ public class ProfessorResource {
                 List<CourseAssignment> assignments = professorService.saveWithCourseAssignments(dto);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                    .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, "new"))
-                    .body(assignments);
+                        .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, "new"))
+                        .body(assignments);
             } else {
                 // Handle as a regular professor creation
                 Professor professor = objectMapper.convertValue(professorData, Professor.class);
@@ -152,8 +148,8 @@ public class ProfessorResource {
                 }
                 professor = professorService.save(professor);
                 return ResponseEntity.created(new URI("/api/professors/" + professor.getId()))
-                    .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, professor.getId().toString()))
-                    .body(professor);
+                        .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, professor.getId().toString()))
+                        .body(professor);
             }
         } catch (Exception e) {
             LOG.error("Exception in createProfessor() with cause = '{}' and exception = '{}'", e.getCause(), e.getMessage(), e);
@@ -165,7 +161,7 @@ public class ProfessorResource {
      * {@code PUT  /professors/:id} : Updates an existing professor.
      * If the request body contains subjectGroups or courseAssignments, course assignments will be updated.
      *
-     * @param id the id of the professor to save.
+     * @param id            the id of the professor to save.
      * @param professorData the professor or professor with course assignments to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated professor,
      * or with status {@code 400 (Bad Request)} if the professor is not valid,
@@ -174,8 +170,8 @@ public class ProfessorResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProfessor(
-        @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Map<String, Object> professorData
+            @PathVariable(value = "id", required = false) final Long id,
+            @RequestBody Map<String, Object> professorData
     ) throws URISyntaxException {
         LOG.debug("REST request to update Professor : {}, {}", id, professorData);
 
@@ -197,8 +193,8 @@ public class ProfessorResource {
                 List<CourseAssignment> assignments = professorService.updateWithCourseAssignments(dto);
 
                 return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                    .body(assignments);
+                        .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                        .body(assignments);
             } else if (professorData.containsKey("courseAssignments")) {
                 // Handle the courseAssignments format for updates
                 // Extract user info for updating the professor
@@ -220,15 +216,20 @@ public class ProfessorResource {
                 List<Map<String, Object>> courseAssignments = (List<Map<String, Object>>) professorData.get("courseAssignments");
                 Map<Long, ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO> subjectGroupMap = new HashMap<>();
 
+
                 for (Map<String, Object> assignment : courseAssignments) {
                     Map<String, Object> subjectMap = (Map<String, Object>) assignment.get("subject");
                     Map<String, Object> groupMap = (Map<String, Object>) assignment.get("studentGroup");
+                    // check if subjectMap and groupMap are not null
+                    if (subjectMap == null || groupMap == null) {
+                        continue;
+                    }
 
                     Long subjectId = Long.valueOf(subjectMap.get("id").toString());
 
                     // Get or create subject group assignment
                     ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO subjectGroup =
-                        subjectGroupMap.getOrDefault(subjectId, new ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO());
+                            subjectGroupMap.getOrDefault(subjectId, new ProfessorWithCourseAssignmentsDTO.SubjectGroupAssignmentDTO());
 
                     // Set subject info if not already set
                     if (subjectGroup.getSubject() == null) {
@@ -260,8 +261,8 @@ public class ProfessorResource {
                 List<CourseAssignment> assignments = professorService.updateWithCourseAssignments(dto);
 
                 return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                    .body(assignments);
+                        .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                        .body(assignments);
             } else {
                 // Handle as a regular professor update
                 Professor professor = objectMapper.convertValue(professorData, Professor.class);
@@ -279,8 +280,8 @@ public class ProfessorResource {
 
                 professor = professorService.update(professor);
                 return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, professor.getId().toString()))
-                    .body(professor);
+                        .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, professor.getId().toString()))
+                        .body(professor);
             }
         } catch (Exception e) {
             LOG.error("Exception in updateProfessor() with cause = '{}' and exception = '{}'", e.getCause(), e.getMessage(), e);
@@ -291,7 +292,7 @@ public class ProfessorResource {
     /**
      * {@code PATCH  /professors/:id} : Partial updates given fields of an existing professor, field will ignore if it is null
      *
-     * @param id the id of the professor to save.
+     * @param id        the id of the professor to save.
      * @param professor the professor to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated professor,
      * or with status {@code 400 (Bad Request)} if the professor is not valid,
@@ -299,10 +300,10 @@ public class ProfessorResource {
      * or with status {@code 500 (Internal Server Error)} if the professor couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PatchMapping(value = "/{id}", consumes = {"application/json", "application/merge-patch+json"})
     public ResponseEntity<Professor> partialUpdateProfessor(
-        @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Professor professor
+            @PathVariable(value = "id", required = false) final Long id,
+            @RequestBody Professor professor
     ) throws URISyntaxException {
         LOG.debug("REST request to partial update Professor partially : {}, {}", id, professor);
         if (professor.getId() == null) {
@@ -319,22 +320,22 @@ public class ProfessorResource {
         Optional<Professor> result = professorService.partialUpdate(professor);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, professor.getId().toString())
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, professor.getId().toString())
         );
     }
 
     /**
      * {@code GET  /professors} : get all the professors with their course assignments.
      *
-     * @param pageable the pagination information.
+     * @param pageable  the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of professors with their course assignments in body.
      */
     @GetMapping("")
     public ResponseEntity<List<ProfessorDTO>> getAllProfessors(
-        @org.springdoc.core.annotations.ParameterObject Pageable pageable,
-        @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable,
+            @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
     ) {
         LOG.debug("REST request to get a page of Professors with course assignments");
         Page<ProfessorDTO> page = professorService.findAllWithCourseAssignments(pageable);
@@ -366,7 +367,7 @@ public class ProfessorResource {
         LOG.debug("REST request to delete Professor : {}", id);
         professorService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

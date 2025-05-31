@@ -5,6 +5,7 @@ import com.student.management.service.dto.DashboardDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class DashboardResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the dashboard data.
      */
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<DashboardDTO> getDashboard() {
         LOG.debug("REST request to get Dashboard data");
         DashboardDTO dashboardData = dashboardService.getDashboardData();
@@ -77,5 +79,19 @@ public class DashboardResource {
         LOG.debug("REST request to get {} professor activities", limit);
         List<Map<String, Object>> professorActivities = dashboardService.getProfessorActivities(limit);
         return ResponseEntity.ok().body(professorActivities);
+    }
+
+    /**
+     * {@code GET  /dashboard/professor/{id}} : get professor-specific dashboard statistics.
+     *
+     * @param id the ID of the professor to get statistics for
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the professor statistics.
+     */
+    @GetMapping("/professor/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_PROFESSOR')")
+    public ResponseEntity<Map<String, Object>> getProfessorStatistics(@PathVariable Long id) {
+        LOG.debug("REST request to get statistics for Professor: {}", id);
+        Map<String, Object> statistics = dashboardService.getProfessorStatistics(id);
+        return ResponseEntity.ok().body(statistics);
     }
 }

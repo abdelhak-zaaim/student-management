@@ -399,4 +399,66 @@ public class DashboardService {
         })
         .collect(Collectors.toList());
     }
+
+    /**
+     * Get statistics for a specific professor.
+     *
+     * @param professorId ID of the professor
+     * @return Map with professor statistics.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getProfessorStatistics(Long professorId) {
+        LOG.debug("Request to get statistics for professor with ID: {}", professorId);
+
+        Map<String, Object> statistics = new HashMap<>();
+
+        // Get professor's course assignments
+        List<Map<String, Object>> assignments = courseAssignmentRepository.findByProfessorId(professorId)
+            .stream()
+            .map(ca -> {
+                Map<String, Object> assignment = new HashMap<>();
+                assignment.put("id", ca.getId());
+                assignment.put("subjectId", ca.getSubject().getId());
+                assignment.put("subjectName", ca.getSubject().getName());
+                assignment.put("studentGroupId", ca.getStudentGroup().getId());
+                assignment.put("studentGroupName", ca.getStudentGroup().getName());
+                assignment.put("studentCount", ca.getStudentGroup().getStudents().size());
+                return assignment;
+            })
+            .collect(Collectors.toList());
+
+        // Count distinct student groups the professor is teaching
+        long distinctGroups = assignments.stream()
+            .map(a -> a.get("studentGroupId"))
+            .distinct()
+            .count();
+
+        // Count distinct subjects the professor is teaching
+        long distinctSubjects = assignments.stream()
+            .map(a -> a.get("subjectId"))
+            .distinct()
+            .count();
+
+        // Total number of students the professor is teaching
+        long totalStudents = assignments.stream()
+            .mapToLong(a -> (Long) a.get("studentCount"))
+            .sum();
+
+        // Summary statistics
+        statistics.put("totalAssignments", assignments.size());
+        statistics.put("totalStudentGroups", distinctGroups);
+        statistics.put("totalSubjects", distinctSubjects);
+        statistics.put("totalStudents", totalStudents);
+        statistics.put("assignments", assignments);
+
+        // Group assignments by subject
+        Map<String, Long> subjectDistribution = assignments.stream()
+            .collect(Collectors.groupingBy(
+                a -> (String) a.get("subjectName"),
+                Collectors.counting()
+            ));
+        statistics.put("subjectDistribution", subjectDistribution);
+
+        return statistics;
+    }
 }
