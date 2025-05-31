@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -204,6 +205,40 @@ public class StudentGroupResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
     
+    /**
+     * {@code GET  /student-groups/professor-groups} : get all student groups that have course assignments
+     * with the current logged-in professor.
+     *
+     * @param pageable the pagination information.
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of studentGroups in body.
+     */
+    @GetMapping("/professor-groups")
+    public ResponseEntity<List<StudentGroup>> getProfessorGroups(
+        @org.springdoc.core.annotations.ParameterObject Pageable pageable,
+        @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
+    ) {
+        LOG.debug("REST request to get student groups for the current logged-in professor");
+        Page<StudentGroup> page = studentGroupService.findByCurrentProfessor(pageable);
+
+        // Apply eager loading if requested
+        if (eagerload) {
+            page = new PageImpl<>(
+                page.getContent().stream()
+                    .map(group -> studentGroupRepository.findOneWithEagerRelationships(group.getId()).orElse(group))
+                    .collect(java.util.stream.Collectors.toList()),
+                pageable,
+                page.getTotalElements()
+            );
+        }
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(),
+            page
+        );
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
     /**
      * {@code DELETE  /student-groups/:id} : delete the "id" studentGroup.
      *
