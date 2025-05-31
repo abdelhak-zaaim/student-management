@@ -1,4 +1,5 @@
-<div class="grid">
+<!-- Admin Dashboard -->
+<div class="grid" *ngIf="isAdmin">
     <!-- Top Summary Cards Row -->
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
@@ -175,10 +176,7 @@
             <p-chart type="bar" [data]="studentGroupRevenueChartData" [options]="studentGroupRevenueChartOptions"
                      height="250px"></p-chart>
         </div>
-
-
     </div>
-
 
     <!-- Students per Group -->
     <div class="col-12">
@@ -192,9 +190,8 @@
                         </div>
                         <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                             <div class="surface-300 border-round overflow-hidden w-10rem lg:w-8rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-primary h-full" [ngStyle]="{width: (group.value / studentCount * 100) + '%'}"></div>
+                                <div class="bg-primary"></div>
                             </div>
-                            <span class="text-primary ml-3 font-medium">{{group.value}} students</span>
                         </div>
                     </div>
                 </div>
@@ -203,5 +200,9 @@
     </div>
 </div>
 
+<!-- Professor Dashboard -->
+<app-professor-dashboard *ngIf="isProfessor" ></app-professor-dashboard>
+
 <p-toast></p-toast>
 <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+

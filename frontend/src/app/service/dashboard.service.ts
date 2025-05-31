@@ -32,6 +32,22 @@ export interface DashboardDTO {
   revenueOverview: RevenueOverviewDTO;
 }
 
+export interface ProfessorStatisticsDTO {
+  totalAssignments: number;
+  totalStudentGroups: number;
+  totalSubjects: number;
+  totalStudents: number;
+  assignments: Array<{
+    id: number;
+    subjectId: number;
+    subjectName: string;
+    studentGroupId: number;
+    studentGroupName: string;
+    studentCount: number;
+  }>;
+  subjectDistribution: {[key: string]: number};
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -42,6 +58,10 @@ export class DashboardService {
 
   getDashboardData(): Observable<DashboardDTO> {
     return this.http.get<DashboardDTO>(`${this.apiUrl}/dashboard`);
+  }
+
+  getProfessorStatistics(professorLogin: string): Observable<ProfessorStatisticsDTO> {
+    return this.http.get<ProfessorStatisticsDTO>(`${this.apiUrl}/dashboard/professors/${professorLogin}`);
   }
 
   // Legacy methods that can be used as fallbacks if needed

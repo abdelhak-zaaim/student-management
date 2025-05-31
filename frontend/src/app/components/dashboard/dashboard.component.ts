@@ -3,7 +3,13 @@ import { MenuItem } from 'primeng/api';
 
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { DashboardService, DashboardDTO, RevenueOverviewDTO } from '../../service/dashboard.service';
+import {
+    DashboardService,
+    DashboardDTO,
+    RevenueOverviewDTO,
+    ProfessorStatisticsDTO
+} from '../../service/dashboard.service';
+import { TokenService } from '../../core/auth/token.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -20,6 +26,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     studentGroupRevenueChartData: any;
     studentGroupRevenueChartOptions: any;
     subscription!: Subscription;
+
+    // User role properties
+    userRole: string | null = null;
+    isProfessor: boolean = false;
+    isAdmin: boolean = false;
+    professorLogin: string | null = null;
 
     // Statistics from DashboardDTO
     dashboardData: DashboardDTO | null = null;
@@ -45,10 +57,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     loading: boolean = true;
     monthlyRevenue: any[] = [];
+    professorStats: ProfessorStatisticsDTO | null | undefined;
 
     constructor(
         public layoutService: LayoutService,
-        private dashboardService: DashboardService
+        private dashboardService: DashboardService,
+        private tokenService: TokenService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initCharts();
@@ -56,6 +70,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        // Determine user role
+        this.userRole = this.tokenService.role;
+        this.isAdmin = this.userRole === 'ROLE_ADMIN';
+        this.isProfessor = this.userRole === 'ROLE_PROFESSOR';
+
+        // Log user role for debugging
+        console.log('User role:', this.userRole);
+        // is admin or professor log
+        if (this.isAdmin) {
+            console.log('User is an admin');
+        } else if (this.isProfessor) {
+            console.log('User is a professor');
+        } else {
+            console.warn('Unknown user role:', this.userRole);
+        }
+
+        // Get professor ID from token if needed
+        if (this.isProfessor && this.tokenService.username) {
+            // log
+            console.log('Extracting professor ID from token:', this.tokenService.username);
+            try {
+                // Assuming the username could be or contain the professor ID
+                this.professorLogin = this.tokenService.username,
+                // log
+                console.log('Extracted professor ID:', this.professorLogin);
+            } catch (e) {
+                console.error('Failed to parse professor ID from token');
+            }
+        }
+
         this.loadStats();
         this.initCharts();
 
@@ -68,6 +112,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loadStats() {
         this.loading = true;
 
+        if (this.isAdmin) {
+            this.loadAdminStats();
+        } else if (this.isProfessor && this.professorLogin) {
+            this.loadProfessorStats(this.professorLogin);
+        } else {
+            console.warn('Unknown user role or missing professorId');
+            this.loading = false;
+        }
+    }
+
+    loadAdminStats() {
         this.dashboardService.getDashboardData().subscribe({
             next: (data) => {
                 this.dashboardData = data;
@@ -105,6 +160,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
             },
             error: (error) => {
                 console.error('Error loading dashboard stats:', error);
+                this.loading = false;
+            }
+        });
+    }
+
+    loadProfessorStats(professorLogin: string) {
+        this.dashboardService.getProfessorStatistics(professorLogin).subscribe({
+            next: (data) => {
+                this.professorStats = data;
+                this.loading = false;
+                console.log('Loaded professor stats:', data);
+            },
+            error: (error) => {
+                console.error('Error loading professor statistics:', error);
                 this.loading = false;
             }
         });

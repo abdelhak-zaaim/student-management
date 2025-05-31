@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './dashboard.component';
+import { ProfessorDashboardComponent } from './professor-dashboard.component';
 import { ChartModule } from 'primeng/chart';
 import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
@@ -33,6 +34,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
         MessageService,
         ConfirmationService
     ],
-    declarations: [DashboardComponent]
+    declarations: [DashboardComponent, ProfessorDashboardComponent]
 })
 export class DashboardModule { }
