@@ -335,11 +335,11 @@ export class ListComponent implements OnInit {
     }
 
     if (!this.professor.user?.email || this.professor.user.email.trim() === '') {
-      return; // Optional field, so we can skip validation
+      return;
     }
 
     if (this.courseAssignments.some(assignment => !assignment.subject || !assignment.studentGroup)) {
-      return;
+      //return;
     }
 
     const professorToSave: Professor = {
@@ -349,7 +349,7 @@ export class ListComponent implements OnInit {
         firstName: this.professor.user.firstName,
         lastName: this.professor.user.lastName,
         email: this.professor.user.email,
-          password: this.professor.user.password
+        password: this.professor.user.password
       },
       courseAssignments: this.courseAssignments
     };
