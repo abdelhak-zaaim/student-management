@@ -240,7 +240,7 @@ export class ListComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to delete professor: ' + (error.message || error),
+            detail: error.error.message || 'Failed to delete selected professors',
             life: 3000
           });
         }
@@ -286,10 +286,12 @@ export class ListComponent implements OnInit {
       })
       .catch(error => {
         console.error('Error deleting professors:', error);
+         // error to json
+
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to delete professors: ' + (error.message || error),
+          detail: error.message || 'Failed to delete selected professors',
           life: 3000
         });
       });
