@@ -212,6 +212,20 @@ public class UserService {
     }
 
     /**
+     * Delete the user by ID.
+     *
+     * @param id the ID of the user to delete
+     */
+    public void deleteUser(Long id) {
+        userRepository
+            .findById(id)
+            .ifPresent(user -> {
+                userRepository.delete(user);
+                LOG.debug("Deleted User with ID {}: {}", id, user.getLogin());
+            });
+    }
+
+    /**
      * Update basic information (first name, last name, email, language) for the current user.
      *
      * @param firstName first name of user.
@@ -269,6 +283,22 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+    }
+
+    /**
+     * Get a user with authorities by ID.
+     *
+     * @param id the ID of the user
+     * @return an optional user with authorities
+     */
+    @Transactional(readOnly = true)
+    public Optional<User> getUserWithAuthorities(Long id) {
+        LOG.debug("Request to get User with authorities by ID: {}", id);
+        return userRepository.findById(id).map(user -> {
+            // Force loading of the authorities collection
+            user.getAuthorities().size();
+            return user;
+        });
     }
 
     /**

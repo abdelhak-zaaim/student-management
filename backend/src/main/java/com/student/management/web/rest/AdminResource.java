@@ -135,51 +135,48 @@ public class AdminResource {
     }
 
     /**
-     * {@code GET  /admins/:login} : get the "login" admin user.
+     * {@code GET  /admins/:id} : get the admin user with the given id.
      *
-     * @param login the login of the user to find.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
+     * @param id the id of the user to find.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the admin user, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/{login}")
-    public ResponseEntity<AdminUserDTO> getAdmin(@PathVariable String login) {
-        LOG.debug("REST request to get Admin User : {}", login);
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminUserDTO> getAdmin(@PathVariable Long id) {
+        LOG.debug("REST request to get Admin User by ID : {}", id);
 
-        // Check if user has admin role before retrieving
-        if (!userService.hasAuthority(login, AuthoritiesConstants.ADMIN)) {
-            LOG.debug("User {} does not have ADMIN role", login);
+        Optional<User> userOpt = userService.getUserWithAuthorities(id);
+
+        // Check if user exists and has admin role
+        if (userOpt.isEmpty() || userOpt.get().getAuthorities().stream()
+            .noneMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()))) {
+            LOG.debug("User with ID {} not found or does not have ADMIN role", id);
             return ResponseEntity.notFound().build();
         }
 
-        return userService.getUserWithAuthoritiesByLogin(login)
-            .map(AdminUserDTO::new)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(new AdminUserDTO(userOpt.get()));
     }
 
     /**
-     * {@code DELETE  /admins/:login} : delete the "login" Admin User.
+     * {@code DELETE  /admins/:id} : delete the admin user with the given id.
      *
-     * @param login the login of the user to delete.
+     * @param id the id of the user to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/{login}")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable String login) {
-        LOG.debug("REST request to delete Admin User: {}", login);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        LOG.debug("REST request to delete Admin User by ID: {}", id);
 
-        // Check if user has ADMIN role before deleting
-        boolean hasAdminRole = userService.getUserWithAuthoritiesByLogin(login)
-            .map(user -> user.getAuthorities().stream()
-                .anyMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName())))
-            .orElse(false);
-
-        if (!hasAdminRole) {
-            throw new BadRequestAlertException("User is not an admin", ENTITY_NAME, "notadmin");
+        // Check if user exists and has admin role
+        Optional<User> userOpt = userService.getUserWithAuthorities(id);
+        if (userOpt.isEmpty() || userOpt.get().getAuthorities().stream()
+            .noneMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()))) {
+            throw new BadRequestAlertException("User not found or is not an admin", ENTITY_NAME, "notadmin");
         }
 
-        userService.deleteUser(login);
+        userService.deleteUser(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login))
+            .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", id.toString()))
             .build();
     }
 }
