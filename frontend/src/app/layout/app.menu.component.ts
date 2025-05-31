@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
+import { TokenService } from '../core/auth/token.service';
 
 @Component({
     selector: 'app-menu',
@@ -9,9 +10,25 @@ export class AppMenuComponent implements OnInit {
 
     model: any[] = [];
 
-    constructor(public layoutService: LayoutService) { }
+    constructor(
+        public layoutService: LayoutService,
+        private tokenService: TokenService
+    ) { }
 
     ngOnInit(): void {
+        const userRole = this.tokenService.role;
+
+        if (userRole === 'ROLE_ADMIN') {
+            this.initAdminMenu();
+        } else if (userRole === 'ROLE_PROFESSOR') {
+            this.initProfessorMenu();
+        } else {
+            // Default or fallback menu
+            this.initDefaultMenu();
+        }
+    }
+
+    private initAdminMenu(): void {
         this.model = [
             {
                 label: 'Home',
@@ -40,19 +57,46 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Make Payment', icon: 'pi pi-dollar',      routerLink: ['/payments/add'] }
                 ]
             },
-            /* --- NEW SECTION --- */
             {
                 label: 'Groups',
                 items: [
-                    { label: 'Groups', icon: 'pi pi-clone',       routerLink: ['/groups/list'] },
+                    { label: 'Groups', icon: 'pi pi-clone', routerLink: ['/groups/list'] },
                 ]
             },
-
             {
                 label: 'Subjects',
                 items: [
-                    { label: 'Subjects', icon: 'pi pi-clone',       routerLink: ['/subjects/list'] },
-                    { label: 'Add Subject', icon: 'pi pi-clone',       routerLink: ['/subjects/add'] },
+                    { label: 'Subjects', icon: 'pi pi-clone', routerLink: ['/subjects/list'] },
+                    { label: 'Add Subject', icon: 'pi pi-clone', routerLink: ['/subjects/add'] },
+                ]
+            }
+        ];
+    }
+
+    private initProfessorMenu(): void {
+        this.model = [
+            {
+                label: 'Home',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] }
+                ]
+            },
+            {
+                label: 'Groups',
+                items: [
+                    { label: 'Groups', icon: 'pi pi-clone', routerLink: ['/groups/list'] },
+                ]
+            }
+        ];
+    }
+
+    private initDefaultMenu(): void {
+        // Fallback menu with minimal access
+        this.model = [
+            {
+                label: 'Home',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] }
                 ]
             }
         ];
