@@ -87,7 +87,7 @@ public class DashboardResource {
      * @param id the ID of the professor to get statistics for
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the professor statistics.
      */
-    @GetMapping("/professor/{id}")
+    @GetMapping("/professors/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_PROFESSOR')")
     public ResponseEntity<Map<String, Object>> getProfessorStatistics(@PathVariable Long id) {
         LOG.debug("REST request to get statistics for Professor: {}", id);
