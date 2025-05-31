@@ -97,10 +97,19 @@ public class ProfessorService {
      *
      * @param dto the data transfer object with professor and course assignment details.
      * @return the list of created course assignments.
+     * @throws IllegalStateException if a user with the same email already exists.
      */
     @Transactional
     public List<CourseAssignment> saveWithCourseAssignments(ProfessorWithCourseAssignmentsDTO dto) {
         LOG.debug("Request to save Professor with course assignments : {}", dto);
+
+        // Check if email already exists
+        if (dto.getUser() != null && dto.getUser().getEmail() != null) {
+            userRepository.findOneByEmailIgnoreCase(dto.getUser().getEmail())
+                .ifPresent(existingUser -> {
+                    throw new IllegalStateException("Email is already in use: " + dto.getUser().getEmail());
+                });
+        }
 
         // Create user from DTO
         User user = new User();
@@ -170,6 +179,8 @@ public class ProfessorService {
      *
      * @param dto the data transfer object with professor and course assignment details.
      * @return the list of updated course assignments.
+     * @throws IllegalArgumentException if professor is not found.
+     * @throws IllegalStateException if a user with the same email already exists.
      */
     @Transactional
     public List<CourseAssignment> updateWithCourseAssignments(ProfessorWithCourseAssignmentsDTO dto) {
@@ -190,16 +201,21 @@ public class ProfessorService {
 
         // Update user information if provided
         if (dto.getUser() != null) {
+            if (dto.getUser().getEmail() != null && !dto.getUser().getEmail().equals(user.getEmail())) {
+                // Check if the new email is already in use by someone else
+                userRepository.findOneByEmailIgnoreCase(dto.getUser().getEmail())
+                    .ifPresent(existingUser -> {
+                        throw new IllegalStateException("Email is already in use: " + dto.getUser().getEmail());
+                    });
+                user.setEmail(dto.getUser().getEmail());
+            }
+
             if (dto.getUser().getFirstName() != null) {
                 user.setFirstName(dto.getUser().getFirstName());
             }
             if (dto.getUser().getLastName() != null) {
                 user.setLastName(dto.getUser().getLastName());
             }
-            if (dto.getUser().getEmail() != null) {
-                user.setEmail(dto.getUser().getEmail());
-            }
-
             if (dto.getUser().getPassword() != null) {
                 user.setPassword(passwordEncoder.encode(dto.getUser().getPassword()));
             }
@@ -352,9 +368,17 @@ public class ProfessorService {
      * Delete the professor by id.
      *
      * @param id the id of the entity.
+     * @throws IllegalStateException if the professor has course assignments that need to be removed first.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Professor : {}", id);
+
+        // Check if professor has course assignments before deletion
+        List<CourseAssignment> existingAssignments = courseAssignmentRepository.findByProfessorId(id);
+        if (!existingAssignments.isEmpty()) {
+            throw new IllegalStateException("Cannot delete professor. Please remove associated course assignments first. This professor is teaching " + existingAssignments.size() + " courses.");
+        }
+
         professorRepository.deleteById(id);
     }
 }

@@ -360,14 +360,23 @@ public class ProfessorResource {
      * {@code DELETE  /professors/:id} : delete the "id" professor.
      *
      * @param id the id of the professor to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)} or status {@code 400 (Bad Request)} if the professor has associated course assignments.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfessor(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteProfessor(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Professor : {}", id);
-        professorService.delete(id);
-        return ResponseEntity.noContent()
+        try {
+            professorService.delete(id);
+            return ResponseEntity.noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
                 .build();
+        } catch (IllegalStateException e) {
+            // Return a 400 Bad Request with the error message if professor has assignments
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("status", "error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+        }
     }
 }
