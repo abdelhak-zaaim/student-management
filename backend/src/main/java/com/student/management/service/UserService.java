@@ -146,7 +146,7 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        String encryptedPassword = passwordEncoder.encode(userDTO.getPassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(Instant.now());
@@ -183,6 +183,12 @@ public class UserService {
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
+                // if the password is not set, do not change it
+                if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                    String encryptedPassword = passwordEncoder.encode(userDTO.getPassword());
+                    user.setPassword(encryptedPassword);
+                }
+
                 user.setImageUrl(userDTO.getImageUrl());
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());

@@ -156,42 +156,14 @@ public class AdminResource {
         authorities.add(AuthoritiesConstants.ADMIN);
         adminUserDTO.setAuthorities(authorities);
 
-        // Check if request includes password update
-        String password = null;
-        try {
-            // Use reflection to check if password field exists and get its value
-            java.lang.reflect.Field passwordField = adminUserDTO.getClass().getDeclaredField("password");
-            passwordField.setAccessible(true);
-            password = (String) passwordField.get(adminUserDTO);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // Password field not found or cannot be accessed, continue with normal update
-            LOG.debug("No password field found in AdminUserDTO or cannot be accessed");
-        }
+
 
         Optional<AdminUserDTO> updatedUser;
 
-        if (password != null && !password.isEmpty()) {
-            // Update with password change
-            LOG.debug("Updating user with password change");
-            User user = userOpt.get();
-            userService.updateUser(
-                adminUserDTO.getFirstName(),
-                adminUserDTO.getLastName(),
-                adminUserDTO.getEmail(),
-                adminUserDTO.getLangKey(),
-                adminUserDTO.getImageUrl()
-            );
 
-            // Update password separately
-            userService.changePassword("", password); // Empty string as we're admin and don't need current password
-
-            // Get updated user for response
-            updatedUser = userService.getUserWithAuthoritiesByLogin(user.getLogin())
-                .map(AdminUserDTO::new);
-        } else {
             // Standard update without password change
             updatedUser = userService.updateUser(adminUserDTO);
-        }
+
 
         return ResponseUtil.wrapOrNotFound(
             updatedUser,
