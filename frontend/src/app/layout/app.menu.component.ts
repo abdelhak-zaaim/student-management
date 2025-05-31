@@ -23,8 +23,9 @@ export class AppMenuComponent implements OnInit {
         } else if (userRole === 'ROLE_PROFESSOR') {
             this.initProfessorMenu();
         } else {
-            // Default or fallback menu
-            this.initDefaultMenu();
+            // no other roles defined, return to login page
+            this.layoutService.logout();
+
         }
     }
 
@@ -94,10 +95,6 @@ export class AppMenuComponent implements OnInit {
         // Fallback menu with minimal access
         this.model = [
             {
-                label: 'Home',
-                items: [
-                    { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] }
-                ]
             }
         ];
     }
