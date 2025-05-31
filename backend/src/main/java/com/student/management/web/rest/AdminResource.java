@@ -1,6 +1,7 @@
 package com.student.management.web.rest;
 
 import com.student.management.domain.Authority;
+import com.student.management.domain.User;
 import com.student.management.security.AuthoritiesConstants;
 import com.student.management.service.UserService;
 import com.student.management.service.dto.AdminUserDTO;
@@ -70,7 +71,10 @@ public class AdminResource {
         adminUserDTO.setAuthorities(authorities);
 
         try {
-            AdminUserDTO newAdmin = userService.createUser(adminUserDTO);
+            // Create the user and convert it back to a DTO
+            User newUser = userService.createUser(adminUserDTO);
+            AdminUserDTO newAdmin = new AdminUserDTO(newUser);
+
             return ResponseEntity
                 .created(new URI("/api/admins/" + newAdmin.getLogin()))
                 .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newAdmin.getLogin()))
@@ -120,16 +124,8 @@ public class AdminResource {
     public ResponseEntity<List<AdminUserDTO>> getAllAdmins(Pageable pageable) {
         LOG.debug("REST request to get all Admin Users");
 
-        // Get all users with ADMIN role
-        Page<AdminUserDTO> page = userService.getAllManagedUsers(pageable)
-            .map(user -> {
-                // Filter users to include only those with ADMIN role
-                if (user.getAuthorities().contains(AuthoritiesConstants.ADMIN)) {
-                    return user;
-                }
-                return null;
-            })
-            .filter(Objects::nonNull);
+        // Get all users with ADMIN role directly from database using optimized query
+        Page<AdminUserDTO> page = userService.getUsersByAuthority(AuthoritiesConstants.ADMIN, pageable);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(),
@@ -147,11 +143,17 @@ public class AdminResource {
     @GetMapping("/{login}")
     public ResponseEntity<AdminUserDTO> getAdmin(@PathVariable String login) {
         LOG.debug("REST request to get Admin User : {}", login);
-        return ResponseUtil.wrapOrNotFound(
-            userService.getUserWithAuthoritiesByLogin(login)
-                .map(AdminUserDTO::new)
-                .filter(user -> user.getAuthorities().contains(AuthoritiesConstants.ADMIN)) // Only return if user has ADMIN role
-        );
+
+        // Check if user has admin role before retrieving
+        if (!userService.hasAuthority(login, AuthoritiesConstants.ADMIN)) {
+            LOG.debug("User {} does not have ADMIN role", login);
+            return ResponseEntity.notFound().build();
+        }
+
+        return userService.getUserWithAuthoritiesByLogin(login)
+            .map(AdminUserDTO::new)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     /**

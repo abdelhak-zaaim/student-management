@@ -293,4 +293,30 @@ public class UserService {
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).toList();
     }
+
+    /**
+     * Get all users with a specific authority.
+     *
+     * @param authority the authority to filter by
+     * @param pageable the pagination information
+     * @return a page of users with the specified authority
+     */
+    @Transactional(readOnly = true)
+    public Page<AdminUserDTO> getUsersByAuthority(String authority, Pageable pageable) {
+        LOG.debug("Request to get all users with authority: {}", authority);
+        return userRepository.findAllWithAuthoritiesByAuthority(authority, pageable).map(AdminUserDTO::new);
+    }
+
+    /**
+     * Check if a user has a specific authority.
+     *
+     * @param login the login of the user
+     * @param authority the authority to check
+     * @return true if the user has the authority, false otherwise
+     */
+    @Transactional(readOnly = true)
+    public boolean hasAuthority(String login, String authority) {
+        LOG.debug("Request to check if user {} has authority {}", login, authority);
+        return userRepository.hasAuthority(login, authority);
+    }
 }
