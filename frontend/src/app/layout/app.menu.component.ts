@@ -38,6 +38,13 @@ export class AppMenuComponent implements OnInit {
                 ]
             },
             {
+                label: 'Admin Management',
+                items: [
+                    { label: 'Admin List', icon: 'pi pi-users', routerLink: ['/admin/list'] },
+                    { label: 'Add Admin', icon: 'pi pi-user-plus', routerLink: ['/admin/add'] }
+                ]
+            },
+            {
                 label: 'Professors',
                 items: [
                     { label: 'Professors',  icon: 'pi pi-users',      routerLink: ['/profs/list'] },

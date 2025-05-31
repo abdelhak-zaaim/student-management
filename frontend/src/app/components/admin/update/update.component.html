@@ -1,1 +1,80 @@
-<p>update works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>{{isEditMode ? 'Edit Admin' : 'Add New Admin'}}</h5>
+
+            <p-toast></p-toast>
+
+            <div *ngIf="loading" class="flex justify-content-center">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+
+            <form [formGroup]="adminForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+                <div class="grid p-fluid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="firstName">First Name</label>
+                            <input id="firstName" type="text" pInputText formControlName="firstName">
+                            <small *ngIf="adminForm.get('firstName')?.invalid && adminForm.get('firstName')?.touched" class="p-error">
+                                First name is required
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="lastName">Last Name</label>
+                            <input id="lastName" type="text" pInputText formControlName="lastName">
+                            <small *ngIf="adminForm.get('lastName')?.invalid && adminForm.get('lastName')?.touched" class="p-error">
+                                Last name is required
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="login">Username</label>
+                            <input id="login" type="text" pInputText formControlName="login">
+                            <small *ngIf="adminForm.get('login')?.invalid && adminForm.get('login')?.touched" class="p-error">
+                                Username is required (minimum 3 characters)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="email">Email</label>
+                            <input id="email" type="email" pInputText formControlName="email">
+                            <small *ngIf="adminForm.get('email')?.invalid && adminForm.get('email')?.touched" class="p-error">
+                                Please enter a valid email address
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="password">Password {{ isEditMode ? '(Leave empty to keep current password)' : '' }}</label>
+                            <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"></p-password>
+                            <small *ngIf="!isEditMode && adminForm.get('password')?.invalid && adminForm.get('password')?.touched" class="p-error">
+                                Password is required (minimum 6 characters)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field-checkbox mt-4">
+                            <p-checkbox formControlName="activated" [binary]="true" inputId="activated"></p-checkbox>
+                            <label for="activated">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 flex justify-content-end">
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text mr-2" (click)="cancel()" type="button"></button>
+                        <button pButton pRipple label="Save" icon="pi pi-check" [loading]="submitting" [disabled]="adminForm.invalid || submitting" type="submit"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
