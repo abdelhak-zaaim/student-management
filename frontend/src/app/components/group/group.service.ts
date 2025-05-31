@@ -75,16 +75,21 @@ export class GroupService {
     delete(id: number): Observable<HttpResponse<void>> {
         return this.http.delete<void>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
-    
+
     /** Bulk delete groups by IDs */
     bulkDelete(ids: number[]): Observable<HttpResponse<void>> {
         return this.http.post<void>(`${this.resourceUrl}/bulk-delete`, ids, { observe: 'response' });
     }
-    
+
     /** Import groups from CSV/Excel file */
     importGroups(file: File): Observable<EntityArrayResponseType> {
         const formData = new FormData();
         formData.append('file', file);
         return this.http.post<Group[]>(`${this.resourceUrl}/import`, formData, { observe: 'response' });
+    }
+
+    /** GET professor's assigned groups */
+    findGroupsForProfessor(): Observable<EntityArrayResponseType> {
+        return this.http.get<Group[]>(`${this.resourceUrl}/professor-groups`, { observe: 'response' });
     }
 }

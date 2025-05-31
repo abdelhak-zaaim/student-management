@@ -24,7 +24,7 @@ export class AppMenuComponent implements OnInit {
             this.initProfessorMenu();
         } else {
             // no other roles defined, return to login page
-            this.layoutService.logout();
+            this.initDefaultMenu();
 
         }
     }

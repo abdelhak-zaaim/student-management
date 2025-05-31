@@ -3,6 +3,7 @@ import {Group} from "../../../models/group.model";
 import {MessageService, MenuItem} from "primeng/api";
 import {Table} from "primeng/table";
 import {GroupService} from "../group.service";
+import {TokenService} from "../../../core/auth/token.service";
 
 @Component({
   selector: 'app-list',
@@ -14,6 +15,7 @@ export class ListComponent implements OnInit {
     group: Group = {};
     selectedGroups: Group[] = [];
     submitted: boolean = false;
+    isProfessor: boolean = false;
 
     cols: any[] = [];
     statuses: any[] = [];
@@ -30,18 +32,59 @@ export class ListComponent implements OnInit {
 
     rowsPerPageOptions = [5, 10, 20];
 
-    constructor(private groupService: GroupService, private messageService: MessageService) {
-    }
+    constructor(
+        private groupService: GroupService,
+        private messageService: MessageService,
+        private tokenService: TokenService
+    ) {}
 
     ngOnInit(): void {
-        this.groupService.findAll().subscribe(data => {
-            this.groups = data.body
-        });
+        // Check if user is a professor
+        this.isProfessor = this.tokenService.role === 'ROLE_PROFESSOR';
+
+        // Load appropriate groups based on user role
+        if (this.isProfessor) {
+            this.loadProfessorGroups();
+        } else {
+            this.loadAllGroups();
+        }
 
         this.cols = [
             {field: 'name', header: 'Name'},
             {field: 'description', header: 'Description'},
         ];
+    }
+
+    /**
+     * Load all groups (for admins)
+     */
+    loadAllGroups(): void {
+        this.groupService.findAll().subscribe(data => {
+            this.groups = data.body;
+        }, error => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load groups',
+                life: 3000
+            });
+        });
+    }
+
+    /**
+     * Load only groups assigned to the current professor
+     */
+    loadProfessorGroups(): void {
+        this.groupService.findGroupsForProfessor().subscribe(data => {
+            this.groups = data.body;
+        }, error => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load your assigned groups',
+                life: 3000
+            });
+        });
     }
 
     /**
@@ -170,24 +213,71 @@ export class ListComponent implements OnInit {
         });
     }
 
-
+    /**
+     * Open new group dialog (disable for professors)
+     */
     openNew() {
+        if (this.isProfessor) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Permission Denied',
+                detail: 'Professors cannot create new groups',
+                life: 3000
+            });
+            return;
+        }
         this.group = {};
         this.submitted = false;
         this.groupDialog = true;
     }
 
+    /**
+     * Delete selected groups (disable for professors)
+     */
     deleteSelectedGroups() {
+        if (this.isProfessor) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Permission Denied',
+                detail: 'Professors cannot delete groups',
+                life: 3000
+            });
+            return;
+        }
         this.deleteGroupsDialog = true;
     }
 
+    /**
+     * Edit group (disable for professors)
+     */
     editGroup(group: Group) {
+        if (this.isProfessor) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Permission Denied',
+                detail: 'Professors cannot edit groups',
+                life: 3000
+            });
+            return;
+        }
         // Clone the group to avoid modifying the original until save
         this.group = {...group};
         this.groupDialog = true;
     }
 
+    /**
+     * Delete group (disable for professors)
+     */
     deleteGroup(group: Group) {
+        if (this.isProfessor) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Permission Denied',
+                detail: 'Professors cannot delete groups',
+                life: 3000
+            });
+            return;
+        }
         this.deleteGroupDialog = true;
         this.group = {...group};
     }
@@ -297,27 +387,45 @@ export class ListComponent implements OnInit {
      */
     searchByName(name: string): void {
         if (!name || name.trim() === '') {
-            // If empty search, load all groups
-            this.groupService.findAll().subscribe(response => {
-                this.groups = response.body;
-            });
+            // If empty search, reload groups based on role
+            if (this.isProfessor) {
+                this.loadProfessorGroups();
+            } else {
+                this.loadAllGroups();
+            }
             return;
         }
 
         // Query backend with name parameter
-        this.groupService.query({ name: name.trim() }).subscribe(response => {
-            this.groups = response.body;
+        const params = { name: name.trim() };
 
-            // Show message if no results
-            if (!this.groups || this.groups.length === 0) {
-                this.messageService.add({
-                    severity: 'info',
-                    summary: 'Search Results',
-                    detail: `No groups found with name containing "${name}"`,
-                    life: 3000
+        this.groupService.query(params).subscribe(response => {
+            // For professors, further filter by their assigned groups
+            if (this.isProfessor) {
+                // We need to ensure we only show groups from the professor's assignments
+                this.groupService.findGroupsForProfessor().subscribe(professorGroups => {
+                    const professorGroupIds = new Set(professorGroups.body?.map(g => g.id) || []);
+                    this.groups = response.body?.filter(g => professorGroupIds.has(g.id)) || null;
+                    this.showSearchResults(name);
                 });
+            } else {
+                // For admins, show all matching groups
+                this.groups = response.body;
+                this.showSearchResults(name);
             }
         });
+    }
+
+    private showSearchResults(searchTerm: string): void {
+        // Show message if no results
+        if (!this.groups || this.groups.length === 0) {
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Search Results',
+                detail: `No groups found with name containing "${searchTerm}"`,
+                life: 3000
+            });
+        }
     }
 
     private handleDeleteCompletion(successCount: number, failureCount: number) {
@@ -473,7 +581,6 @@ export class ListComponent implements OnInit {
             );
         }
     }
-
 
     findIndexById(id: number): number {
         let index = -1;
