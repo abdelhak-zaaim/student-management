@@ -33,19 +33,22 @@ public class DashboardService {
     private final CourseAssignmentRepository courseAssignmentRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final SubjectRepository subjectRepository;
+    private final UserRepository userRepository;
 
     public DashboardService(StudentRepository studentRepository,
                           ProfessorRepository professorRepository,
                           PaymentRepository paymentRepository,
                           CourseAssignmentRepository courseAssignmentRepository,
                           StudentGroupRepository studentGroupRepository,
-                          SubjectRepository subjectRepository) {
+                          SubjectRepository subjectRepository,
+                          UserRepository userRepository) {
         this.studentRepository = studentRepository;
         this.professorRepository = professorRepository;
         this.paymentRepository = paymentRepository;
         this.courseAssignmentRepository = courseAssignmentRepository;
         this.studentGroupRepository = studentGroupRepository;
         this.subjectRepository = subjectRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -441,7 +444,16 @@ public class DashboardService {
 
         // Total number of students the professor is teaching
         long totalStudents = assignments.stream()
-            .mapToLong(a -> (Long) a.get("studentCount"))
+            .mapToLong(a -> {
+                // Safely handle conversion between Integer and Long
+                Object countObj = a.get("studentCount");
+                if (countObj instanceof Integer) {
+                    return ((Integer) countObj).longValue();
+                } else if (countObj instanceof Long) {
+                    return (Long) countObj;
+                }
+                return 0L; // Default if for some reason the count is missing or has an unexpected type
+            })
             .sum();
 
         // Summary statistics
@@ -460,5 +472,24 @@ public class DashboardService {
         statistics.put("subjectDistribution", subjectDistribution);
 
         return statistics;
+    }
+
+    /**
+     * Get statistics for a professor by login.
+     *
+     * @param login Login of the professor
+     * @return Map with professor statistics.
+     * @throws IllegalArgumentException if the professor is not found
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getProfessorStatisticsByLogin(String login) {
+        LOG.debug("Request to get statistics for professor with login: {}", login);
+
+        // Find the professor by login
+        return userRepository.findOneByLogin(login)
+            .map(user -> professorRepository.findById(user.getId())
+                .map(professor -> getProfessorStatistics(professor.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("No professor found with login: " + login)))
+            .orElseThrow(() -> new IllegalArgumentException("No user found with login: " + login));
     }
 }

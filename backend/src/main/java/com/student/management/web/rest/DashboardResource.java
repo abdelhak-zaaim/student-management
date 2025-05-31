@@ -82,16 +82,16 @@ public class DashboardResource {
     }
 
     /**
-     * {@code GET  /dashboard/professor/{id}} : get professor-specific dashboard statistics.
+     * {@code GET  /dashboard/professor/login/:login} : get professor-specific dashboard statistics by login.
      *
-     * @param id the ID of the professor to get statistics for
+     * @param login the login of the professor to get statistics for
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the professor statistics.
      */
-    @GetMapping("/professors/{id}")
+    @GetMapping("/professors/{login}")
     @PreAuthorize("hasAnyAuthority('ROLE_PROFESSOR')")
-    public ResponseEntity<Map<String, Object>> getProfessorStatistics(@PathVariable Long id) {
-        LOG.debug("REST request to get statistics for Professor: {}", id);
-        Map<String, Object> statistics = dashboardService.getProfessorStatistics(id);
+    public ResponseEntity<Map<String, Object>> getProfessorStatisticsByLogin(@PathVariable String login) {
+        LOG.debug("REST request to get statistics for Professor with login: {}", login);
+        Map<String, Object> statistics = dashboardService.getProfessorStatisticsByLogin(login);
         return ResponseEntity.ok().body(statistics);
     }
 }
