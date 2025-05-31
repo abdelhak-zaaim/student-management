@@ -1,5 +1,6 @@
 package com.student.management.service;
 
+import com.student.management.domain.Authority;
 import com.student.management.domain.CourseAssignment;
 import com.student.management.domain.Professor;
 import com.student.management.domain.StudentGroup;
@@ -10,13 +11,16 @@ import com.student.management.repository.ProfessorRepository;
 import com.student.management.repository.StudentGroupRepository;
 import com.student.management.repository.SubjectRepository;
 import com.student.management.repository.UserRepository;
+import com.student.management.security.AuthoritiesConstants;
 import com.student.management.service.dto.ProfessorDTO;
 import com.student.management.service.dto.ProfessorWithAssignmentsDTO;
 import com.student.management.service.dto.ProfessorWithCourseAssignmentsDTO;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -71,6 +75,14 @@ public class ProfessorService {
             // Create and save the new user
             String tempLogin = "professor" + System.currentTimeMillis();
             professor.getUser().setLogin(tempLogin);
+
+            // Set PROFESSOR role
+            Set<Authority> authorities = new HashSet<>();
+            Authority professorAuthority = new Authority();
+            professorAuthority.setName(AuthoritiesConstants.PROFESSOR);
+            authorities.add(professorAuthority);
+            professor.getUser().setAuthorities(authorities);
+
             professor.setUser(userRepository.save(professor.getUser()));
         } else if (professor.getUser() != null) {
             // Load existing user if present
@@ -103,6 +115,13 @@ public class ProfessorService {
         user.setLogin(username);
 
         user.setActivated(true);
+
+        // Set PROFESSOR role
+        Set<Authority> authorities = new HashSet<>();
+        Authority professorAuthority = new Authority();
+        professorAuthority.setName(AuthoritiesConstants.PROFESSOR);
+        authorities.add(professorAuthority);
+        user.setAuthorities(authorities);
 
         // Save user
         user = userRepository.save(user);
