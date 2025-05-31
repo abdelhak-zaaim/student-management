@@ -115,6 +115,91 @@ public class AdminResource {
     }
 
     /**
+     * {@code PUT  /admins/:id} : Updates an existing admin user by ID.
+     *
+     * @param id the id of the admin user to update
+     * @param adminUserDTO the user to update
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated user,
+     * or with status {@code 404 (Not Found)} if the user is not found or not an admin,
+     * or with status {@code 400 (Bad Request)} if the user ID in the URL doesn't match the ID in the body
+     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already in use
+     * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<AdminUserDTO> updateAdminById(
+        @PathVariable Long id,
+        @Valid @RequestBody AdminUserDTO adminUserDTO
+    ) {
+        LOG.debug("REST request to update Admin User by ID : {}, {}", id, adminUserDTO);
+
+        if (adminUserDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+
+        if (!Objects.equals(id, adminUserDTO.getId())) {
+            throw new BadRequestAlertException("ID mismatch", ENTITY_NAME, "idmismatch");
+        }
+
+        // Check if user exists and has admin role
+        Optional<User> userOpt = userService.getUserWithAuthorities(id);
+        if (userOpt.isEmpty() || userOpt.get().getAuthorities().stream()
+            .noneMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()))) {
+            LOG.debug("User with ID {} not found or does not have ADMIN role", id);
+            return ResponseEntity.notFound().build();
+        }
+
+        // Always ensure the ADMIN role is preserved
+        Set<String> authorities = adminUserDTO.getAuthorities();
+        if (authorities == null) {
+            authorities = new HashSet<>();
+        }
+        authorities.add(AuthoritiesConstants.ADMIN);
+        adminUserDTO.setAuthorities(authorities);
+
+        // Check if request includes password update
+        String password = null;
+        try {
+            // Use reflection to check if password field exists and get its value
+            java.lang.reflect.Field passwordField = adminUserDTO.getClass().getDeclaredField("password");
+            passwordField.setAccessible(true);
+            password = (String) passwordField.get(adminUserDTO);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // Password field not found or cannot be accessed, continue with normal update
+            LOG.debug("No password field found in AdminUserDTO or cannot be accessed");
+        }
+
+        Optional<AdminUserDTO> updatedUser;
+
+        if (password != null && !password.isEmpty()) {
+            // Update with password change
+            LOG.debug("Updating user with password change");
+            User user = userOpt.get();
+            userService.updateUser(
+                adminUserDTO.getFirstName(),
+                adminUserDTO.getLastName(),
+                adminUserDTO.getEmail(),
+                adminUserDTO.getLangKey(),
+                adminUserDTO.getImageUrl()
+            );
+
+            // Update password separately
+            userService.changePassword("", password); // Empty string as we're admin and don't need current password
+
+            // Get updated user for response
+            updatedUser = userService.getUserWithAuthoritiesByLogin(user.getLogin())
+                .map(AdminUserDTO::new);
+        } else {
+            // Standard update without password change
+            updatedUser = userService.updateUser(adminUserDTO);
+        }
+
+        return ResponseUtil.wrapOrNotFound(
+            updatedUser,
+            HeaderUtil.createAlert(applicationName, "userManagement.updated", adminUserDTO.getLogin())
+        );
+    }
+
+    /**
      * {@code GET  /admins} : get all users with ADMIN role.
      *
      * @param pageable the pagination information.
