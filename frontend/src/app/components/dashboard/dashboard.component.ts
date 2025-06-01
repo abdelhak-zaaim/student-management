@@ -122,6 +122,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    // Calculate width percentage for student group progress bars
+    calculateProgressWidth(studentCount: number): number {
+        // Find max value in studentsPerGroup for scaling
+        if (!this.studentsPerGroup || Object.keys(this.studentsPerGroup).length === 0) {
+            return 0;
+        }
+
+        const maxStudents = Math.max(...Object.values(this.studentsPerGroup));
+        if (maxStudents <= 0) {
+            return 0;
+        }
+
+        // Calculate width as percentage of max value (cap at 100%)
+        return Math.min(100, (studentCount / maxStudents) * 100);
+    }
+
     loadAdminStats() {
         this.dashboardService.getDashboardData().subscribe({
             next: (data) => {

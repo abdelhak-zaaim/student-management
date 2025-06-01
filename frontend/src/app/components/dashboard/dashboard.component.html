@@ -187,11 +187,13 @@
                     <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                         <div>
                             <span class="text-900 font-medium mr-2 mb-1 md:mb-0">{{group.key}}</span>
+                            <span class="text-500 font-medium">{{group.value}} students</span>
                         </div>
                         <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                             <div class="surface-300 border-round overflow-hidden w-10rem lg:w-8rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-primary"></div>
+                                <div class="bg-primary h-full" [style.width.%]="calculateProgressWidth(group.value)"></div>
                             </div>
+                            <span class="text-500 font-medium ml-3">{{group.value}}</span>
                         </div>
                     </div>
                 </div>
@@ -199,10 +201,4 @@
         </div>
     </div>
 </div>
-
-<!-- Professor Dashboard -->
-<app-professor-dashboard *ngIf="isProfessor" ></app-professor-dashboard>
-
-<p-toast></p-toast>
-<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
