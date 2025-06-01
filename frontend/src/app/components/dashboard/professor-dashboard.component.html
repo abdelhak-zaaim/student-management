@@ -1,0 +1,110 @@
+<!-- Professor Dashboard -->
+<div class="grid">
+    <!-- Professor's Top Summary Cards Row -->
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Total Students</span>
+                    <div class="text-900 font-medium text-xl">{{professorStats?.totalStudents | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-users text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">Students </span>
+            <span class="text-500">in your classes</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Student Groups</span>
+                    <div class="text-900 font-medium text-xl">{{professorStats?.totalStudentGroups | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-orange-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-users text-orange-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Groups you're teaching</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Subjects</span>
+                    <div class="text-900 font-medium text-xl">{{professorStats?.totalSubjects | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-book text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Subjects you're teaching</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Assignments</span>
+                    <div class="text-900 font-medium text-xl">{{professorStats?.totalAssignments | number}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-purple-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-file text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-500">Total course assignments</span>
+        </div>
+    </div>
+
+    <!-- Professor's Charts -->
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Subject Distribution</h5>
+            <div class="flex justify-content-center">
+                <p-chart type="pie" [data]="subjectPieChartData" [options]="subjectPieChartOptions" height="250px"></p-chart>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Students per Group</h5>
+            <p-chart type="bar" [data]="classGroupData" [options]="studentGroupRevenueChartOptions" height="250px"></p-chart>
+        </div>
+    </div>
+
+    <!-- Professor's Class List -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Your Classes</h5>
+            <p-table [value]="professorStats?.assignments || []" [paginator]="true" [rows]="10" responsiveLayout="scroll"
+                     styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Student Group</th>
+                        <th>Students</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-assignment>
+                    <tr>
+                        <td style="width: 35%; min-width: 10rem;">{{assignment.subjectName}}</td>
+                        <td style="width: 40%; min-width: 10rem;">{{assignment.studentGroupName}}</td>
+                        <td style="width: 25%; min-width: 8rem;">{{assignment.studentCount}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="3">No class assignments found.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
