@@ -364,12 +364,21 @@ export class ListComponent implements OnInit {
       // Update existing professor
       this.professorService.update(professorToSave).subscribe(
         response => {
-          let updatedProfessor = response.body || professorToSave;
+          const updatedProfessor = response.body;
 
-          const index = this.findIndexById(professorToSave.id!);
-          if (index !== -1 && this.professors) {
-            this.professors[index] = updatedProfessor;
+          if (updatedProfessor && this.professors) {
+            // Find the index of the professor in the array
+            const index = this.findIndexById(updatedProfessor.id!);
+
+            if (index !== -1) {
+              // Replace the professor with the updated one from server
+              this.professors[index] = { ...updatedProfessor };
+            } else {
+              // If professor not found in list, reload all professors
+              this.loadProfessors();
+            }
           } else {
+            // If response body is null or professors array doesn't exist, reload the list
             this.loadProfessors();
           }
 
@@ -398,11 +407,22 @@ export class ListComponent implements OnInit {
       // Create new professor
       this.professorService.create(professorToSave).subscribe(
         response => {
-          const newProfessor = response.body || professorToSave;
+          const newProfessor = response.body;
+          console.log('New professor created:', newProfessor);
 
-          if (this.professors) {
-            this.professors.push(newProfessor);
+          if (newProfessor && this.professors) {
+            // Make sure we have a fully populated professor object
+            if (newProfessor.user?.firstName && newProfessor.user?.lastName) {
+              // Add the complete professor object from server response to the beginning of the list
+              this.professors.unshift(newProfessor);
+            } else {
+              // If the response doesn't contain expected data, reload full list
+              console.warn('New professor data incomplete, reloading list');
+              this.loadProfessors();
+            }
           } else {
+            // If response body is null or professors array doesn't exist, reload the list
+            console.warn('Failed to get proper response for new professor, reloading list');
             this.loadProfessors();
           }
 
