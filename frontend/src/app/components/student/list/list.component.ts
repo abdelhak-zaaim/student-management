@@ -28,6 +28,10 @@ export class ListComponent implements OnInit {
     studentPayments: Payment[] = [];
     currentStudent: Student | null = null;
 
+    // Dialog for payment deletion
+    deletePaymentDialog: boolean = false;
+    paymentToDelete: Payment | null = null;
+
     cols: any[] = [];
     statuses: any[] = [];
     studentGroups: Group[] = [];
@@ -785,5 +789,55 @@ export class ListComponent implements OnInit {
                 life: 3000
             });
         }
+    }
+
+    /**
+     * Show dialog to delete a payment
+     */
+    deletePayment(payment: Payment): void {
+        this.paymentToDelete = payment;
+        this.deletePaymentDialog = true;
+    }
+
+    /**
+     * Confirm payment deletion
+     */
+    confirmDeletePayment(): void {
+        if (!this.paymentToDelete) {
+            return;
+        }
+
+        const url = `${environment.apiBaseUrl}/payments/${this.paymentToDelete.id}`;
+
+        this.http.delete(url).subscribe(
+            () => {
+                // Remove the payment from the local array
+                this.studentPayments = this.studentPayments.filter(p => p.id !== this.paymentToDelete!.id);
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: 'Payment deleted successfully',
+                    life: 3000
+                });
+
+                // Reset and close the dialog
+                this.deletePaymentDialog = false;
+                this.paymentToDelete = null;
+            },
+            error => {
+                console.error('Error deleting payment:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete payment: ' + (error.message || error),
+                    life: 3000
+                });
+
+                // Close the dialog even on error
+                this.deletePaymentDialog = false;
+                this.paymentToDelete = null;
+            }
+        );
     }
 }

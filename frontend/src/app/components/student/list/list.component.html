@@ -262,12 +262,11 @@
                         </td>
                         <td>{{payment.date | date:'medium'}}</td>
                         <td>
-                            <button pButton pRipple icon="pi pi-pencil"
-                                    class="p-button-rounded p-button-success mr-2"
-                                    (click)="editPayment(payment)"></button>
-                            <button pButton pRipple icon="pi pi-eye"
-                                    class="p-button-rounded p-button-info mr-2"
-                                    (click)="viewPaymentDetails(payment)"></button>
+                            <button pButton pRipple icon="pi pi-trash"
+                                    class="p-button-rounded p-button-danger"
+                                    pTooltip="Delete Payment"
+                                    tooltipPosition="top"
+                                    (click)="deletePayment(payment)"></button>
                         </td>
                     </tr>
                 </ng-template>
@@ -283,5 +282,18 @@
                 <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="studentPaymentsDialog = false"></button>
             </ng-template>
         </p-dialog>
+
+        <!-- Delete Payment Dialog -->
+        <p-dialog [(visible)]="deletePaymentDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem; color: #FFA500;"></i>
+                <span *ngIf="paymentToDelete">Are you sure you want to delete payment <b>#{{paymentToDelete.id}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deletePaymentDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text p-button-danger" label="Yes" (click)="confirmDeletePayment()"></button>
+            </ng-template>
+        </p-dialog>
     </div>
 </div>
+
