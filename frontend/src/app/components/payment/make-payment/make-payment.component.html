@@ -20,7 +20,7 @@
                 <div class="field col-12 md:col-6">
                     <label for="amount" class="font-bold">Amount*</label>
                     <p-inputNumber id="amount" [(ngModel)]="payment.amount"
-                                 mode="currency" currency="USD" locale="en-US"
+                                 mode="currency" currency="MAD" locale="en-US"
                                  [min]="0" [maxFractionDigits]="2"
                                  [disabled]="loading"
                                  [ngClass]="{'ng-invalid ng-dirty': submitted && !payment.amount}"></p-inputNumber>
