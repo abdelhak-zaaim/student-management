@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {Payment} from "../../models/payment.model";
+import {environment} from "../../../environments/environment";
 
 export type EntityResponseType = HttpResponse<Payment>;
 export type EntityArrayResponseType = HttpResponse<Payment[]>;
@@ -14,7 +15,7 @@ export class PaymentService {
      * Adjust the base path if needed
      * (or pull it from an environment file).
      */
-    private resourceUrl = '/api/payments';
+    private resourceUrl = environment.apiBaseUrl +'/payments';
 
     constructor(private http: HttpClient) {}
 
