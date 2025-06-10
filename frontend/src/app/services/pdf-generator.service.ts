@@ -84,10 +84,10 @@ export class PdfGeneratorService {
       startY: 90,
       head: [['Description', 'Amount']],
       body: [
-        ['Tuition Payment', payment.amount ? `$${payment.amount.toFixed(2)}` : '$0.00']
+        ['Tuition Payment', payment.amount ? `${payment.amount.toFixed(2)} MAD` : '0.00 MAD']
       ],
       foot: [
-        ['Total', payment.amount ? `$${payment.amount.toFixed(2)}` : '$0.00']
+        ['Total', payment.amount ? `${payment.amount.toFixed(2)} MAD` : '0.00 MAD']
       ],
       theme: 'striped',
       headStyles: {
